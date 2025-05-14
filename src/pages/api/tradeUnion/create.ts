@@ -2,11 +2,11 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 // utils
 import cors from 'src/utils/cors';
+import TradeUnion from 'src/models/tradeUnion';
 // _mock
 import { _users, JWT_SECRET, JWT_EXPIRES_IN } from 'src/_mock/_auth';
 import db from '../../../utils/db';
 import Intern from '../../../models/intern';
-import TradeUnion from 'src/models/tradeUnion';
 // ----------------------------------------------------------------------
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
