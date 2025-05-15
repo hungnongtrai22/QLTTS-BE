@@ -298,6 +298,9 @@ export default function IndexPage() {
     </Stack>
   );
 
+    console.log('MONGODB_URI:', process.env.MONGODB_URI);
+
+
   return (
     <Container
       maxWidth="md"
