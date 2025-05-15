@@ -11,18 +11,17 @@ import db from 'src/utils/db';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
-    db.connectDB();
+    await db.connectDB();
 
 
     const interns = await Intern.find(); 
-    db.disconnectDB();
     res.status(200).json({
       interns,
     });
   } catch (error) {
     console.error('[Product API]: ', error);
-    res.status(500).json({
-      message: 'Internal server error',
+    res.status(400).json({
+      message: error,
     });
   }
 }

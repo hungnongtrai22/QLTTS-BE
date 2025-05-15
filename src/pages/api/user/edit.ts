@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(405).json({ message: 'Method not allowed' });
     }
 
-    db.connectDB();
+    await db.connectDB();
 
     const {
       _id,
@@ -54,7 +54,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } = req.body;
 
     if (!_id) {
-      db.disconnectDB();
       return res.status(400).json({ message: 'Missing intern ID (_id)' });
     }
 
@@ -98,7 +97,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       { new: true }
     );
 
-    db.disconnectDB();
 
     if (!updatedIntern) {
       return res.status(404).json({ message: 'Intern not found' });
@@ -109,8 +107,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   } catch (error) {
     console.error('[Update Intern API]: ', error);
-    return res.status(500).json({
-      message: 'Internal server error',
+    return res.status(400).json({
+      message: error,
     });
   }
 }

@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     await cors(req, res);
 
-    db.connectDB();
+    await db.connectDB();
 
     const {
       name,
@@ -86,15 +86,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       moveForeign,
     }).save();
 
-    db.disconnectDB();
 
-    res.status(200).json({
+    return res.status(200).json({
       intern: newIntern,
     });
   } catch (error) {
     console.error('[Auth API]: ', error);
-    res.status(500).json({
-      message: 'Internal server error',
+    return res.status(400).json({
+      message: error,
     });
   }
 }
