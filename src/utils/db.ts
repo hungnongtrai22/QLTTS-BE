@@ -21,7 +21,7 @@ const connectDB = async (): Promise<void> => {
     await mongoose.disconnect();
   }
 
-  const db = await mongoose.connect((process.env.NEXT_PUBLIC_MONGODB_URL as string || process.env.MONGODB_URL as string);
+  const db = await mongoose.connect(process.env.NEXT_PUBLIC_MONGODB_URL as string || process.env.MONGODB_URL as string);
   console.log('New connection to the database.');
   connection.isConnected = db.connections[0].readyState;
 };
