@@ -299,6 +299,7 @@ export default function IndexPage() {
   );
 
     console.log('MONGODB_URL:', process.env.MONGODB_URL);
+    console.log('NEXT_PUBLIC_MONGODB_URL:', process.env.NEXT_PUBLIC_MONGODB_URL);
 
 
   return (
