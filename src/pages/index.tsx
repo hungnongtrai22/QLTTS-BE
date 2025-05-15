@@ -298,7 +298,7 @@ export default function IndexPage() {
     </Stack>
   );
 
-    console.log('MONGODB_URI:', process.env.MONGODB_URI);
+    console.log('MONGODB_URL:', process.env.MONGODB_URL);
 
 
   return (
