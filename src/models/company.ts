@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+
 const { ObjectId } = mongoose.Schema;
 
 const companySchema = new mongoose.Schema(

@@ -1,10 +1,8 @@
-import { sign } from 'jsonwebtoken';
 
 import { NextApiRequest, NextApiResponse } from 'next';
 // utils
 import cors from 'src/utils/cors';
 // _mock
-import { _users, JWT_SECRET, JWT_EXPIRES_IN } from 'src/_mock/_auth';
 import db from '../../../utils/db';
 import Intern from '../../../models/intern';
 // ----------------------------------------------------------------------
