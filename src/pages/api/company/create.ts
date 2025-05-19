@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 // utils
 import cors from 'src/utils/cors';
-import TradeUnion from 'src/models/tradeUnion';
+import Company from 'src/models/company';
 // _mock
 import db from '../../../utils/db';
 // ----------------------------------------------------------------------
@@ -12,8 +12,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await db.connectDB();
 
-    const { name } = req.body;
-    const newTradeUnion = await new TradeUnion({
+    const { name, } = req.body;
+    const newTradeUnion = await new Company({
       name,
       email: req?.body?.email || "",
       address: req?.body?.address || "",
@@ -21,6 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       state: req?.body?.state || "",
       country: req?.body?.country || "",
       phone: req?.body?.phone || "",
+      tradeUnion: req?.body?.tradeUnion || "",
     }).save();
 
     return res.status(200).json({

@@ -3,18 +3,27 @@ import mongoose from 'mongoose';
 const tradeUnionSchema = new mongoose.Schema(
   {
     name: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     email: {
-        type: String,
+      type: String,
     },
-    
+
     address: {
-        type: String,
+      type: String,
+    },
+    city: {
+      type: String,
+    },
+    state: {
+      type: String,
+    },
+    country: {
+      type: String,
     },
     phone: {
-        type: String,
+      type: String,
     },
   },
   {
