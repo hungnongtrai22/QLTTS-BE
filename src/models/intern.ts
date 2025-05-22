@@ -162,14 +162,8 @@ const internSchema = new mongoose.Schema(
         type: String,
         required: true,
     },
-    strong: {
-        type: String,
-        required: true,
-    },
-    weak: {
-        type: String,
-        required: true,
-    },
+    strong: [],
+    weak: [],
     aim: {
         type: String,
         required: true,
