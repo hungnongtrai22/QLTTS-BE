@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await db.connectDB();
 
-    const { _id, name, email, address, city, state, country, phone, tradeUnion } = req.body;
+    const { _id, name, email, address, city, state, country, phone, tradeUnion, description } = req.body;
 
     if (!_id) {
       return res.status(400).json({ message: 'Missing company ID (_id)' });
@@ -32,7 +32,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         state,
         country,
         phone,
-        tradeUnion
+        tradeUnion,
+        description
       },
       { new: true }
     );

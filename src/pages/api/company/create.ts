@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await db.connectDB();
 
     const { name, } = req.body;
-    const newTradeUnion = await new Company({
+    const newCompany = await new Company({
       name,
       email: req?.body?.email || "",
       address: req?.body?.address || "",
@@ -22,10 +22,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       country: req?.body?.country || "",
       phone: req?.body?.phone || "",
       tradeUnion: req?.body?.tradeUnion || "",
+      descriptions: req?.body?.descriptions || "",
     }).save();
 
     return res.status(200).json({
-      tradeUnion: newTradeUnion,
+      company: newCompany,
     });
   } catch (error) {
     console.error('[Auth API]: ', error);
