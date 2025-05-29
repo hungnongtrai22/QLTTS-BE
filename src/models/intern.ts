@@ -188,12 +188,10 @@ const internSchema = new mongoose.Schema(
     },
     tradeUnion: {
       type: ObjectId,
-      required: true,
       ref: 'TradeUnion',
     },
     companySelect: {
       type: ObjectId,
-      required: true,
       ref: 'company',
     },
   },
