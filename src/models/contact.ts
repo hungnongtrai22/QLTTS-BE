@@ -20,23 +20,11 @@ const contactSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    nameDad: {
-      type: String,
-      required: true,
-    },
-    addressDad: {
+    addressDadAndMom: {
       type: String,
       required: true,
     },
     phoneDad: {
-      type: String,
-      required: true,
-    },
-    nameMom: {
-      type: String,
-      required: true,
-    },
-    addressMom: {
       type: String,
       required: true,
     },

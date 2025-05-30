@@ -18,11 +18,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       address,
       email,
       phone,
-      nameDad,
-      addressDad,
+      addressDadAndMom,
       phoneDad,
-      nameMom,
-      addressMom,
       phoneMom,
     } = req.body;
     const newContact = await new  Contact({
@@ -30,11 +27,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       address,
       email,
       phone,
-      nameDad,
-      addressDad,
+      addressDadAndMom,
       phoneDad,
-      nameMom,
-      addressMom,
       phoneMom,
     }).save();
 

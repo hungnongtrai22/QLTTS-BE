@@ -17,19 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await db.connectDB();
 
-    const {
-      _id,
-      internId,
-      address,
-      email,
-      phone,
-      nameDad,
-      addressDad,
-      phoneDad,
-      nameMom,
-      addressMom,
-      phoneMom,
-    } = req.body;
+    const { _id, internId, address, email, phone, addressDadAndMom, phoneDad, phoneMom } = req.body;
 
     if (!_id) {
       return res.status(400).json({ message: 'Missing Contact ID (_id)' });
@@ -42,11 +30,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         address,
         email,
         phone,
-        nameDad,
-        addressDad,
+        addressDadAndMom,
         phoneDad,
-        nameMom,
-        addressMom,
         phoneMom,
       },
       { new: true }
