@@ -116,19 +116,19 @@ const internSchema = new mongoose.Schema(
       {
         timeFrom: {
           type: Date,
-          required: true,
+          // required: true,
         },
         timeTo: {
           type: Date,
-          required: true,
+          // required: true,
         },
         name: {
           type: String,
-          required: true,
+          // required: true,
         },
         content: {
           type: String,
-          required: true,
+          // required: true,
         },
       },
     ],
