@@ -1,7 +1,14 @@
 import mongoose from 'mongoose';
 
+const { ObjectId } = mongoose.Schema;
+
 const studySchema = new mongoose.Schema(
   {
+    internId: {
+      type: ObjectId,
+      required: true,
+      ref: 'intern',
+    },
     health: {
       type: Number,
       required: true,
@@ -60,14 +67,26 @@ const studySchema = new mongoose.Schema(
     },
     kanji: {
       type: Number,
-      required: true,
     },
     grammarAndReading: {
       type: Number,
-      required: true,
     },
     listeningComprehension: {
       type: Number,
+    },
+    totalReadingAndListening: {
+      type: Number,
+    },
+    learningProcess: {
+      type: String,
+      required: true,
+    },
+    characteristic: {
+      type: String,
+      required: true,
+    },
+    comment: {
+      type: String,
       required: true,
     },
   },
