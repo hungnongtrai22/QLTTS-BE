@@ -83,18 +83,14 @@ const orderSchema = new mongoose.Schema(
     },
     listWorker: [
       {
-        id: {
-          type: ObjectId,
-          ref: 'intern',
-        },
+        type: ObjectId,
+        ref: 'Intern',
       },
     ],
     listIntern: [
       {
-        id: {
-          type: ObjectId,
-          ref: 'intern',
-        },
+        type: ObjectId,
+        ref: 'Intern',
       },
     ],
   },
