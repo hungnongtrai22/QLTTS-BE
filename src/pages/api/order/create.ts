@@ -15,6 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const {
       name,
+      priority,
       interviewFormat,
       status,
       recruitmentDate,
@@ -38,6 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } = req.body;
     const newOrder = await new Order({
       name,
+      priority,
       interviewFormat,
       status,
       recruitmentDate,
