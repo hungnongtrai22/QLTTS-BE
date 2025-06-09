@@ -45,7 +45,7 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
     quantity: {
-      type: Boolean,
+      type: Number,
       required: true,
     },
     quantityMen: {
