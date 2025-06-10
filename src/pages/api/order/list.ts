@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 // utils
 import cors from 'src/utils/cors';
 // _mock
+import 'src/models/intern'; // đảm bảo model Intern được đăng ký trước
 import Order from 'src/models/order';
 import db from 'src/utils/db';
 
@@ -13,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await db.connectDB();
 
 
-    const orders = await Order.find(); 
+    const orders = await Order.find().populate('listIntern'); 
     return res.status(200).json({
       orders,
     });
