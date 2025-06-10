@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 // utils
 import cors from 'src/utils/cors';
 // _mock
-import Intern from 'src/models/intern';
 import db from 'src/utils/db';
 import Contact from 'src/models/contact';
 

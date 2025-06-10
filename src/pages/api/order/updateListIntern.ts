@@ -35,10 +35,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const updatedOrder = await order.save();
 
-    res.status(200).json({ order: updatedOrder });
+    return res.status(200).json({ order: updatedOrder });
   } catch (error) {
     console.error('[Update Intern API]: ', error);
-    res.status(400).json({
+    return res.status(400).json({
       message: error instanceof Error ? error.message : String(error),
     });
   }

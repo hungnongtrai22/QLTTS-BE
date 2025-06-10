@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!orderId || !internId) {
       return res
         .status(400)
-        .json({ message: 'Missing orderId or internId' + orderId + '-' + internId });
+        .json({ message: `Missing orderId or internId' + ${orderId} + '-' + ${internId}` });
     }
 
     const updatedOrder = await Order.findByIdAndUpdate(
