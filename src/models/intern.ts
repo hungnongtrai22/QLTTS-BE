@@ -144,15 +144,15 @@ const internSchema = new mongoose.Schema(
         },
         year: {
           type: Date,
-          required: true,
+          // required: true,
         },
         location: {
           type: String,
-          required: true,
+          // required: true,
         },
         occupation: {
           type: String,
-          required: true,
+          // required: true,
         },
       },
     ],
@@ -193,6 +193,18 @@ const internSchema = new mongoose.Schema(
     companySelect: {
       type: ObjectId,
       ref: 'company',
+    },
+    iq: {
+      type: Number,
+    },
+    math: {
+      type: Number,
+    },
+    kraepelin1: {
+      type: Number,
+    },
+    kraepelin2: {
+      type: Number,
     },
   },
   {
