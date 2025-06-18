@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     if (!study) {
-      return res.status(404).json({ message: 'Study not found' });
+      return res.status(200).json(null);
     }
 
     return res.status(200).json({ study });
