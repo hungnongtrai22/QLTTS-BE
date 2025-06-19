@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     await cors(req, res);
 
-    if (req.method !== 'DELETE') {
+    if (req.method !== 'PUT') {
       return res.status(405).json({ message: 'Method not allowed' });
     }
 
