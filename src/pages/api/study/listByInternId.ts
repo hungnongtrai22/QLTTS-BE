@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const studies = await Study.find({
       internId: req.body.internId,
-    }).sort({ createdAt: -1 });
+    }).sort({ monthAndYear: -1 });
     
     return res.status(200).json({
       studies,
