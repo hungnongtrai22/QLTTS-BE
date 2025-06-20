@@ -24,7 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const study = await Study.findOne({
       internId,
-      createdAt: {
+      monthAndYear: {
         $gte: startDate,
         $lte: endDate,
       },

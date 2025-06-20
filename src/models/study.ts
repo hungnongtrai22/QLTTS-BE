@@ -89,6 +89,10 @@ const studySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    monthAndYear: {
+      type: Date,
+      // required: true,
+    },
   },
   {
     timestamps: true,

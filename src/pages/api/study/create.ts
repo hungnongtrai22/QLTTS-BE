@@ -36,6 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       learningProcess,
       characteristic,
       comment,
+      monthAndYear,
     } = req.body;
     const newStudy = await new Study({
       internId,
@@ -60,6 +61,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       learningProcess,
       characteristic,
       comment,
+      monthAndYear,
     }).save();
 
     return res.status(200).json({
