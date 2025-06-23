@@ -25,8 +25,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const updatedIntern = await Intern.findByIdAndUpdate(
       _id,
       {
-        iq: req?.body?.iq,
-        math: req?.body?.status,
+        _id: req?.body?._id,
+        status: req?.body?.status,
       },
       { new: true }
     );
