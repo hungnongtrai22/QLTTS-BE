@@ -206,6 +206,10 @@ const internSchema = new mongoose.Schema(
     kraepelin2: {
       type: Number,
     },
+    status: {
+      type: String,
+      default: "study"
+    },
   },
   {
     timestamps: true,
