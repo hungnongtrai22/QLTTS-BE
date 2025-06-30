@@ -23,6 +23,12 @@ const attendanceSchema = new mongoose.Schema(
         allDay: {
           type: Boolean,
         },
+        am: {
+          type: Boolean,
+        },
+        pm: {
+          type: Boolean,
+        },
         start: {
           type: Date,
         },
