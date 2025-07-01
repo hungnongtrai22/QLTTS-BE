@@ -26,9 +26,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Nối tất cả các mảng attend lại với nhau
-    const mergedAttend = attendanceRecords.reduce((acc: any[], record: any) => {
-      return acc.concat(record.attend || []);
-    }, []);
+    const mergedAttend = attendanceRecords.reduce(
+      (acc: any[], record: any) => acc.concat(record.attend || []),
+      []
+    );
 
     return res.status(200).json({ attend: mergedAttend });
   } catch (error) {
