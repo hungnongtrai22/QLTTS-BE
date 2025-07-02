@@ -25,11 +25,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json([]);
     }
 
-    // Nối tất cả các mảng attend lại với nhau
-    const mergedAttend = attendanceRecords.reduce(
-      (acc: any[], record: any) => acc.concat(record.attend || []),
-      []
-    );
+    // Nối tất cả các mảng attend lại với nhau, thêm attendanceId cho từng attend
+    const mergedAttend = attendanceRecords.reduce((acc: any[], record: any) => {
+      const attendsWithParentId = (record.attend || []).map((attend: any) => ({
+        ...attend.toObject?.() || attend, // đảm bảo là plain object
+        attendanceId: record._id,
+      }));
+      return acc.concat(attendsWithParentId);
+    }, []);
 
     return res.status(200).json({ attend: mergedAttend });
   } catch (error) {
