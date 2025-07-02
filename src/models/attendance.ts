@@ -35,6 +35,15 @@ const attendanceSchema = new mongoose.Schema(
         end: {
           type: Date,
         },
+        late: {
+          type: Boolean,
+        },
+        soon: {
+          type: Boolean,
+        },
+        off: {
+          type: Boolean,
+        },
       },
     ],
     monthAndYear: {
