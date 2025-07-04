@@ -210,6 +210,18 @@ const internSchema = new mongoose.Schema(
       type: String,
       default: "study"
     },
+    job: {
+      type: String,
+    },
+    interviewDate: {
+      type: Date,
+    },
+    studyDate: {
+      type: Date,
+    },
+    startDate: {
+      type: Date,
+    }
   },
   {
     timestamps: true,

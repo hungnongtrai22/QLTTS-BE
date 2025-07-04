@@ -27,6 +27,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       {
         tradeUnion,
         companySelect,
+        job: req?.body?.job,
+        interviewDate: req?.body?.interviewDate,
+        studyDate: req?.body?.studyDate,
+        startDate: req?.body?.startDate,
       },
       { new: true }
     );
