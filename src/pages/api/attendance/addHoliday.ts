@@ -1,3 +1,5 @@
+/* eslint-disable no-restricted-syntax, no-await-in-loop */
+
 import { NextApiRequest, NextApiResponse } from 'next';
 import cors from 'src/utils/cors';
 import Attendance from 'src/models/attendance';

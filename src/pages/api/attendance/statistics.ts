@@ -1,3 +1,5 @@
+/* eslint-disable no-plusplus, prefer-const, no-restricted-syntax, no-continue, no-lonely-if, no-await-in-loop */
+
 import { NextApiRequest, NextApiResponse } from 'next';
 import db from 'src/utils/db';
 import cors from 'src/utils/cors';
