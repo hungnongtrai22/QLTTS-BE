@@ -15,17 +15,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await db.connectDB();
 
-    const { internId, month, year, itemId, updateData } = req.body;
+    const { internId, itemId, updateData } = req.body;
 
-    if (!internId || typeof month !== 'number' || typeof year !== 'number' || !itemId) {
+    if (!internId || !itemId) {
       return res.status(400).json({ message: 'Thiếu internId, month, year hoặc itemId' });
     }
 
     const updatedAttendance = await Attendance.findOneAndUpdate(
       {
         internId,
-        month,
-        year,
         'attend._id': itemId,
       },
       {

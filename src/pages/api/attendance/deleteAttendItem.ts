@@ -13,14 +13,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await db.connectDB();
 
-    const { internId, itemId, month, year } = req.body;
+    const { internId, itemId } = req.body;
 
-    if (!internId || !itemId || typeof month !== 'number' || typeof year !== 'number') {
+    if (!internId || !itemId) {
       return res.status(400).json({ message: 'Thiếu dữ liệu: internId, itemId, month hoặc year' });
     }
 
     const updatedAttendance = await Attendance.findOneAndUpdate(
-      { internId, month, year },
+      { internId },
       { $pull: { attend: { _id: itemId } } },
       { new: true }
     );
