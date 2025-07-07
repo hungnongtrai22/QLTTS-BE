@@ -14,21 +14,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const { internId, month, year } = req.body;
 
-    if (!internId || !month || !year) {
-      return res.status(400).json({ message: 'Missing internId, month, or year' });
+    if (!internId || typeof month !== 'number' || typeof year !== 'number') {
+      return res.status(400).json({ message: 'Thiếu internId, month hoặc year' });
     }
 
-    // Tạo khoảng thời gian đầu tháng đến cuối tháng
-    const startDate = new Date(year, month - 1, 1); // JS month: 0-11
-    const endDate = new Date(year, month, 0, 23, 59, 59, 999); // last day of the month
-
-    const attendance = await Attendance.findOne({
-      internId,
-      monthAndYear: {
-        $gte: startDate,
-        $lte: endDate,
-      },
-    });
+    const attendance = await Attendance.findOne({ internId, month, year });
 
     if (!attendance) {
       return res.status(200).json(null);
@@ -38,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (error) {
     console.error('[Attendance API]: ', error);
     return res.status(500).json({
-      message: 'Internal server error',
+      message: 'Đã có lỗi xảy ra phía server',
     });
   }
 }

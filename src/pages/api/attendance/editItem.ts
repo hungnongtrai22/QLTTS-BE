@@ -2,9 +2,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 // utils
 import cors from 'src/utils/cors';
 import Attendance from 'src/models/attendance';
-
-// _mock
 import db from '../../../utils/db';
+
 // ----------------------------------------------------------------------
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -17,14 +16,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await db.connectDB();
 
-    const { _id, itemId, updateData } = req.body;
+    const { internId, itemId, updateData, month, year } = req.body;
 
-    if (!_id || !itemId) {
-      return res.status(400).json({ message: 'Missing _id or itemId' });
+    if (!internId || !itemId || typeof month !== 'number' || typeof year !== 'number') {
+      return res.status(400).json({ message: 'Thiếu internId, itemId, month hoặc year' });
     }
 
     const updatedAttendance = await Attendance.findOneAndUpdate(
-      { _id, "attend._id": itemId },
+      {
+        internId,
+        month,
+        year,
+        "attend._id": itemId,
+      },
       {
         $set: {
           "attend.$.title": updateData.title,
@@ -44,7 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
 
     if (!updatedAttendance) {
-      return res.status(404).json({ message: 'Attendance or attend item not found' });
+      return res.status(404).json({ message: 'Không tìm thấy attend item hoặc bản ghi attendance' });
     }
 
     return res.status(200).json({
@@ -53,7 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (error) {
     console.error('[Update Attend Item API]: ', error);
     return res.status(400).json({
-      message: error instanceof Error ? error.message : 'Something went wrong',
+      message: error instanceof Error ? error.message : 'Đã có lỗi xảy ra',
     });
   }
 }

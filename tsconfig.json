@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "target": "es5",
+    "target": "es2015",                   // ✅ đổi từ "es5" → "es2015"
+    "downlevelIteration": true,  
     "lib": [
       "dom",
       "dom.iterable",

@@ -5,7 +5,6 @@ import cors from 'src/utils/cors';
 import Attendance from 'src/models/attendance';
 import db from 'src/utils/db';
 
-
 // ----------------------------------------------------------------------
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -13,17 +12,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await cors(req, res);
     await db.connectDB();
 
-    const attendances = await Attendance.find({
-      internId: req.body.internId,
-    }).sort({ monthAndYear: -1 });
-    
+    const { internId } = req.body;
+
+    if (!internId) {
+      return res.status(400).json({ message: 'Missing internId' });
+    }
+
+    const attendances = await Attendance.find({ internId }).sort({
+      year: -1,
+      month: -1, // Sắp xếp theo thời gian giảm dần: năm -> tháng
+    });
+
     return res.status(200).json({
       attendances,
     });
   } catch (error) {
     console.error('[Attendance API]: ', error);
     return res.status(400).json({
-      message: error,
+      message: error instanceof Error ? error.message : 'Đã có lỗi xảy ra',
     });
   }
 }

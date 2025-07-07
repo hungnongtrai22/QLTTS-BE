@@ -18,20 +18,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Missing internId' });
     }
 
-    // Lấy tất cả bản ghi Attendance của internId
-    const attendanceRecords = await Attendance.find({ internId });
+    // Lấy tất cả bản ghi Attendance của internId, có thể sort theo thời gian nếu cần
+    const attendanceRecords = await Attendance.find({ internId }).sort({ year: 1, month: 1 });
 
     if (!attendanceRecords || attendanceRecords.length === 0) {
-      return res.status(200).json([]);
+      return res.status(200).json({ attend: [] });
     }
 
-    // Nối tất cả các mảng attend lại với nhau, thêm attendanceId cho từng attend
+    // Nối tất cả các attend, kèm theo attendanceId, month, year
     const mergedAttend = attendanceRecords.reduce((acc: any[], record: any) => {
-      const attendsWithParentId = (record.attend || []).map((attend: any) => ({
-        ...attend.toObject?.() || attend, // đảm bảo là plain object
+      const attendsWithMeta = (record.attend || []).map((attend: any) => ({
+        ...(attend.toObject?.() || attend),
         attendanceId: record._id,
+        month: record.month,
+        year: record.year,
       }));
-      return acc.concat(attendsWithParentId);
+      return acc.concat(attendsWithMeta);
     }, []);
 
     return res.status(200).json({ attend: mergedAttend });

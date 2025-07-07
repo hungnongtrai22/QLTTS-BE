@@ -12,17 +12,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await cors(req, res);
     await db.connectDB();
 
-    const { internId, attendItem, monthAndYear } = req.body;
+    const { internId, attendItem, month, year } = req.body;
+
+    if (
+      typeof internId !== 'string' ||
+      typeof month !== 'number' ||
+      typeof year !== 'number' ||
+      !attendItem
+    ) {
+      return res.status(400).json({ message: 'Dữ liệu không hợp lệ' });
+    }
 
     // Kiểm tra bản ghi đã tồn tại chưa
-    const existingRecord = await Attendance.findOne({ internId, monthAndYear });
+    const existingRecord = await Attendance.findOne({ internId, month, year });
 
     let updatedAttendance;
 
     if (existingRecord) {
       // Nếu đã tồn tại, thêm attendItem vào mảng attend
       updatedAttendance = await Attendance.findOneAndUpdate(
-        { internId, monthAndYear },
+        { internId, month, year },
         { $push: { attend: attendItem } },
         { new: true }
       );
@@ -30,7 +39,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Nếu chưa có thì tạo mới với attend là mảng chứa 1 phần tử
       updatedAttendance = await new Attendance({
         internId,
-        monthAndYear,
+        month,
+        year,
         attend: [attendItem],
       }).save();
     }

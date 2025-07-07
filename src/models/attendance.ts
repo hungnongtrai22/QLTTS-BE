@@ -46,8 +46,14 @@ const attendanceSchema = new mongoose.Schema(
         },
       },
     ],
-    monthAndYear: {
-      type: Date,
+    // monthAndYear: {
+    //   type: Date,
+    // },
+    month: {
+      type: Number,
+    },
+    Year: {
+      type: Number,
     },
   },
   {
