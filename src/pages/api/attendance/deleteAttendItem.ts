@@ -16,11 +16,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { internId, itemId } = req.body;
 
     if (!internId || !itemId) {
-      return res.status(400).json({ message: 'Thiếu dữ liệu: internId, itemId, month hoặc year' });
+      return res.status(400).json({ message: 'Thiếu dữ liệu: internId, itemId' });
     }
 
     const updatedAttendance = await Attendance.findOneAndUpdate(
-      { internId },
+      { internId, 'attend._id': itemId },
       { $pull: { attend: { _id: itemId } } },
       { new: true }
     );
