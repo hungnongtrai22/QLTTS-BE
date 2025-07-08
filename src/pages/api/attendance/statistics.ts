@@ -10,15 +10,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await cors(req, res);
     await db.connectDB();
 
-    const { internId, monthAndYear } = req.body;
+    const { internId, month,  year} = req.body;
 
-    if (!internId || !monthAndYear) {
+    if (!internId || !month || !year) {
       return res.status(400).json({ message: 'Thiếu internId hoặc monthAndYear' });
     }
 
-    const date = new Date(monthAndYear);
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1; // từ 1 đến 12
+    // const date = new Date(monthAndYear);
+    // const year = date.getFullYear();
+    // const month = date.getMonth() + 1;
 
     // Tổng số ngày trong tháng (Thứ 2 → Thứ 6)
     const daysInMonth = new Date(year, month, 0).getDate(); // Lưu ý: truyền ngày 0 để lấy ngày cuối của tháng trước
