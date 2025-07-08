@@ -52,7 +52,7 @@ const attendanceSchema = new mongoose.Schema(
     month: {
       type: Number,
     },
-    Year: {
+    year: {
       type: Number,
     },
   },
