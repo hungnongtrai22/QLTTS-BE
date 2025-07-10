@@ -13,10 +13,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await db.connectDB();
 
-    const { internId, itemId } = req.body;
+    const { itemId } = req.body;
 
-    if (!internId || !itemId) {
-      return res.status(400).json({ message: 'Thiếu dữ liệu: internId, itemId' });
+    if (!itemId) {
+      return res.status(400).json({ message: 'Thiếu dữ liệu: itemId' });
     }
 
     const updatedEvent = await Event.findOneAndUpdate(
