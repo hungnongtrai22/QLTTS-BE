@@ -1,3 +1,5 @@
+/* eslint-disable no-restricted-syntax, no-continue */
+
 import { NextApiRequest, NextApiResponse } from 'next';
 import cors from 'src/utils/cors';
 import Event from 'src/models/event';
