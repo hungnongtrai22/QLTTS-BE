@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 // utils
 import cors from 'src/utils/cors';
 // _mock
-import TradeUnion from 'src/models/tradeUnion';
+import Source from 'src/models/source';
 import db from 'src/utils/db';
 
 // ----------------------------------------------------------------------
@@ -13,12 +13,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await db.connectDB();
 
 
-    const tradeUnion = await TradeUnion.findById(req.query.id); 
+    const source = await Source.findById(req.query.id); 
     return res.status(200).json({
-      tradeUnion,
+      source,
     });
   } catch (error) {
-    console.error('[Product API]: ', error);
+    console.error('[Source API]: ', error);
     return res.status(400).json({
       message: error,
     });

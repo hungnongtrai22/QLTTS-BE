@@ -12,8 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await cors(req, res);
     await db.connectDB();
 
-
-    const sources = await Source.find(); 
+    const sources = await Source.find();
     return res.status(200).json({
       sources,
     });
