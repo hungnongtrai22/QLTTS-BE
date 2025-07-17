@@ -27,6 +27,10 @@ const accountSchema = new mongoose.Schema(
       type: ObjectId,
       ref: 'TradeUnion',
     },
+    source: {
+      type: ObjectId,
+      ref: 'source',
+    },
   },
   {
     timestamps: true,

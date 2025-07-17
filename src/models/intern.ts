@@ -190,6 +190,10 @@ const internSchema = new mongoose.Schema(
       type: ObjectId,
       ref: 'TradeUnion',
     },
+    source: {
+      type: ObjectId,
+      ref: 'source',
+    },
     companySelect: {
       type: ObjectId,
       ref: 'company',
@@ -208,7 +212,7 @@ const internSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      default: "study"
+      default: 'study',
     },
     job: {
       type: String,
@@ -221,7 +225,7 @@ const internSchema = new mongoose.Schema(
     },
     startDate: {
       type: Date,
-    }
+    },
   },
   {
     timestamps: true,
