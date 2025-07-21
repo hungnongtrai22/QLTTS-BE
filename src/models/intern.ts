@@ -18,7 +18,7 @@ const internSchema = new mongoose.Schema(
     },
     blood: {
       type: String,
-      required: true,
+      // required: true,
     },
     birthday: {
       type: Date,
@@ -26,43 +26,43 @@ const internSchema = new mongoose.Schema(
     },
     age: {
       type: Number,
-      required: true,
+      // required: true,
     },
     height: {
       type: Number,
-      required: true,
+      // required: true,
     },
     weight: {
       type: Number,
-      required: true,
+      // required: true,
     },
     BMI: {
       type: Number,
-      required: true,
+      // required: true,
     },
     blindColor: {
       type: Boolean,
-      required: true,
+      // required: true,
     },
     leftEye: {
       type: Number,
-      required: true,
+      // required: true,
     },
     rightEye: {
       type: Number,
-      required: true,
+      // required: true,
     },
     hand: {
       type: String,
-      required: true,
+      // required: true,
     },
     married: {
       type: String,
-      required: true,
+      // required: true,
     },
     driverLicense: {
       type: String,
-      required: true,
+      // required: true,
     },
     smoke: {
       type: Boolean,
@@ -78,33 +78,33 @@ const internSchema = new mongoose.Schema(
     },
     address: {
       type: String,
-      required: true,
+      // required: true,
     },
     city: {
       type: String,
-      required: true,
+      // required: true,
     },
     school: [
       {
         timeFrom: {
           type: Date,
-          required: true,
+          // required: true,
         },
         timeTo: {
           type: Date,
-          required: true,
+          // required: true,
         },
         name: {
           type: String,
-          required: true,
+          // required: true,
         },
         content: {
           type: String,
-          required: true,
+          // required: true,
         },
         current: {
           type: String,
-          required: true,
+          // required: true,
         },
       },
     ],
@@ -136,11 +136,11 @@ const internSchema = new mongoose.Schema(
       {
         relationship: {
           type: String,
-          required: true,
+          // required: true,
         },
         name: {
           type: String,
-          required: true,
+          // required: true,
         },
         year: {
           type: Date,
@@ -158,33 +158,33 @@ const internSchema = new mongoose.Schema(
     ],
     interest: {
       type: String,
-      required: true,
+      // required: true,
     },
     foreignLanguage: {
       type: String,
-      required: true,
+      // required: true,
     },
     strong: [],
     weak: [],
     aim: {
       type: String,
-      required: true,
+      // required: true,
     },
     plan: {
       type: String,
-      required: true,
+      // required: true,
     },
     money: {
       type: String,
-      required: true,
+      // required: true,
     },
     familyInJapan: {
       type: Boolean,
-      required: true,
+      // required: true,
     },
     moveForeign: {
       type: Boolean,
-      required: true,
+      // required: true,
     },
     tradeUnion: {
       type: ObjectId,
