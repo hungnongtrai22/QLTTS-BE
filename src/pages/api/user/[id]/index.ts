@@ -6,6 +6,7 @@ import Intern from 'src/models/intern';
 import db from 'src/utils/db';
 import TradeUnion from 'src/models/tradeUnion';
 import Company from 'src/models/company';
+import Source from 'src/models/source';
 // ----------------------------------------------------------------------
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -15,7 +16,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const intern = await Intern.findById(req.query.id)
       .populate({ path: 'tradeUnion', model: TradeUnion })
-      .populate({ path: 'companySelect', model: Company });
+      .populate({ path: 'companySelect', model: Company })
+      .populate({ path: 'source', model: Source });
     return res.status(200).json({
       intern,
     });
