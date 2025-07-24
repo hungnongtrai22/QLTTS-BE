@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await db.connectDB();
 
-    const { _id, tradeUnion, companySelect } = req.body;
+    const { _id } = req.body;
 
     if (!_id) {
       return res.status(400).json({ message: 'Missing intern ID (_id)' });
@@ -25,12 +25,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const updatedIntern = await Intern.findByIdAndUpdate(
       _id,
       {
-        tradeUnion,
-        companySelect,
+        tradeUnion: req?.body?.tradeUnion,
+        companySelect: req?.body?.companySelect,
         job: req?.body?.job,
         interviewDate: req?.body?.interviewDate,
         studyDate: req?.body?.studyDate,
         startDate: req?.body?.startDate,
+        source: req?.body?.source
       },
       { new: true }
     );

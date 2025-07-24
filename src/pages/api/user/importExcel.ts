@@ -164,8 +164,12 @@ router.post(async (req, res) => {
 
           if (person) {
             person.imageUrl = uploadResult.url;
-            const tradeUnion = await TradeUnion.findOne({ name: person.tradeUnion });
-            const company = await Company.findOne({ name: person.company });
+            const tradeUnion = await TradeUnion.findOne({ name: person.tradeUnion.trim() });
+            const company = await Company.findOne({ name: person.company.trim() });
+            // console.log('TradeUnion', person.tradeUnion.trim() === '');
+            // console.log('Company', person.company);
+
+            // console.log('TradeUnion', tradeUnion, company);
 
             const newIntern = await new Intern({
               name: person.name,
@@ -178,7 +182,7 @@ router.post(async (req, res) => {
               interviewDate: person.interviewDate,
               studyDate: person.startDate,
               startDate: person.endDate,
-              job: person.work
+              job: person.work,
             }).save();
 
             console.log(`📤 Tạo thành công: ${newIntern.name}`);
