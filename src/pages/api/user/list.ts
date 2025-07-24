@@ -6,6 +6,7 @@ import Intern from 'src/models/intern';
 import db from 'src/utils/db';
 import TradeUnion from 'src/models/tradeUnion';
 import Company from 'src/models/company';
+import Source from 'src/models/source';
 
 // ----------------------------------------------------------------------
 
@@ -15,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await db.connectDB();
 
 
-    const interns = await Intern.find().populate({ path: "tradeUnion", model: TradeUnion }).populate({ path: "companySelect", model: Company }); 
+    const interns = await Intern.find().populate({ path: "tradeUnion", model: TradeUnion }).populate({ path: "companySelect", model: Company }).populate({ path: "source", model: Source }); 
     res.status(200).json({
       interns,
     });

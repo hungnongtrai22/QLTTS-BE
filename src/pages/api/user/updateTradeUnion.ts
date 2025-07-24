@@ -22,11 +22,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Missing intern ID (_id)' });
     }
 
+    const comp = req?.body?.companySelect;
+
     const updatedIntern = await Intern.findByIdAndUpdate(
       _id,
       {
         tradeUnion: req?.body?.tradeUnion,
-        companySelect: req?.body?.companySelect,
+        companySelect: comp === "" ? null : comp,
         job: req?.body?.job,
         interviewDate: req?.body?.interviewDate,
         studyDate: req?.body?.studyDate,
