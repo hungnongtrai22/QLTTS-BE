@@ -26,6 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const user = await Account.findOne({ username });
+    console.log("USER", user);
 
     if (!user) {
       return res.status(401).json({ message: 'Invalid username or password.' });
@@ -50,6 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         email: user.email,
         role: user.role,
         tradeUnion: user.tradeUnion,
+        source: user.source,
         status: 'authenticated',
       },
     });

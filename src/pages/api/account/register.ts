@@ -42,12 +42,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       email: req?.body?.email,
       role: req?.body?.role,
       tradeUnion: req?.body?.tradeUnion,
+      source: req?.body?.source,
     });
 
     const accessToken = sign({ userId: newUser._id }, JWT_SECRET, {
       expiresIn: JWT_EXPIRES_IN,
     });
-
 
     return res.status(201).json({
       accessToken,
