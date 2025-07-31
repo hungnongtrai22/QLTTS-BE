@@ -21,7 +21,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       startDate: req?.body?.startDate,
       endDate: req?.body?.endDate || "",
       time: req?.body?.time,
-      description: req?.body?.description
+      description: req?.body?.description,
+      person: req?.body?.person
     }).save();
 
     return res.status(200).json({

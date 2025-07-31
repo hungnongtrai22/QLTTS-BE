@@ -31,6 +31,9 @@ const diarySchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    person: {
+      type: String,
+    },
   },
   {
     timestamps: true,
