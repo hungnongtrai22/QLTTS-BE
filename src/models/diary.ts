@@ -25,9 +25,9 @@ const diarySchema = new mongoose.Schema(
     endDate: {
       type: Date,
     },
-    time: {
-      type: Number,
-    },
+    // time: {
+    //   type: Number,
+    // },
     description: {
       type: String,
     },

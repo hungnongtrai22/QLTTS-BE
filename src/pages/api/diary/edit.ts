@@ -32,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         direction,
         startDate,
         endDate,
-        time,
+        // time,
         description,
         person
       },

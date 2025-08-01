@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       direction: req?.body?.direction || "",
       startDate: req?.body?.startDate,
       endDate: req?.body?.endDate || "",
-      time: req?.body?.time,
+      // time: req?.body?.time,
       description: req?.body?.description,
       person: req?.body?.person
     }).save();
