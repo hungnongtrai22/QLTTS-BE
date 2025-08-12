@@ -74,7 +74,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         characteristic,
         comment,
         monthAndYear,
-        tearcher: req?.body?.teacher,
+        teacher: req?.body?.teacher,
       },
       { new: true }
     );
