@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { sign } from 'jsonwebtoken';
+// import { sign } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import Account from 'src/models/account';
 // utils

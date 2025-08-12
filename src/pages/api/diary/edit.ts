@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await db.connectDB();
 
-    const { _id, name, intern, status, direction, startDate, endDate, time, description, person } =
+    const { _id, name, intern, status, direction, startDate, endDate, description, person } =
       req.body;
 
     if (!_id) {

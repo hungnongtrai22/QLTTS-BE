@@ -93,6 +93,10 @@ const studySchema = new mongoose.Schema(
       type: Date,
       // required: true,
     },
+    teacher: {
+      type: String,
+      // required: true,
+    },
   },
   {
     timestamps: true,

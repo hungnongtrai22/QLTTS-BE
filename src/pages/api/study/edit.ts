@@ -73,7 +73,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         learningProcess,
         characteristic,
         comment,
-        monthAndYear
+        monthAndYear,
+        tearcher: req?.body?.teacher,
       },
       { new: true }
     );
