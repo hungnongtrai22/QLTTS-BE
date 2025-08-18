@@ -9,8 +9,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await db.connectDB();
 
     const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth();
+    // const currentYear = now.getFullYear();
+    // const currentMonth = now.getMonth();
     const currentDate = now.getDate();
 
     // Lấy ngày bắt đầu tuần (thứ 2) và ngày kết thúc tuần (chủ nhật)
@@ -85,9 +85,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const completeOrSoonSeries = Array(7).fill(0);
 
     weeklyStatusData.forEach(item => {
-      let weekday = item._id.weekday; // 1=CN,2=T2,...,7=T7
+      const weekday = item._id.weekday; // 1=CN,2=T2,...,7=T7
       // chuyển về index 0=Thứ 2 ... 6=CN
-      let index = (weekday + 5) % 7;
+      const index = (weekday + 5) % 7;
       if (item._id.status === 'study') {
         studySeries[index] = item.count;
       } else if (item._id.status === 'pass') {
