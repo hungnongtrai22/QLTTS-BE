@@ -212,7 +212,7 @@ const internSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      default: 'study',
+      default: 'interview',
     },
     job: {
       type: String,
