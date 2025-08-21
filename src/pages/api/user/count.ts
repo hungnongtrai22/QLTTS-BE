@@ -16,14 +16,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           status: 1,
           createdAt: 1,
           updatedAt: 1,
+
+          // Lấy tháng
           month: {
             $switch: {
               branches: [
                 // Nếu là study -> lấy tháng từ createdAt
                 {
-                  case: {
-                    $in: [{ $ifNull: ['$status', 'study'] }, ['study', null, '']]
-                  },
+                  case: { $eq: ['$status', 'study'] },
                   then: { $month: '$createdAt' }
                 },
                 // Nếu là pass/complete/soon -> lấy tháng từ updatedAt
@@ -35,13 +35,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               default: { $month: '$createdAt' }
             }
           },
+
+          // Lấy năm
           year: {
             $switch: {
               branches: [
                 {
-                  case: {
-                    $in: [{ $ifNull: ['$status', 'study'] }, ['study', null, '']]
-                  },
+                  case: { $eq: ['$status', 'study'] },
                   then: { $year: '$createdAt' }
                 },
                 {
@@ -52,11 +52,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               default: { $year: '$createdAt' }
             }
           },
+
+          // Chuẩn hóa status
           normalizedStatus: {
             $switch: {
               branches: [
                 {
-                  case: { $in: [{ $ifNull: ['$status', 'study'] }, ['study', null, '']] },
+                  case: { $eq: ['$status', 'study'] },
                   then: 'study'
                 },
                 {
@@ -73,10 +75,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }
         }
       },
-      // Chỉ lấy những bản ghi có năm = năm hiện tại
+
+      // Chỉ lấy năm hiện tại
       {
         $match: { year: currentYear }
       },
+
+      // Group theo tháng + status
       {
         $group: {
           _id: {
@@ -86,9 +91,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           count: { $sum: 1 }
         }
       },
+
       { $sort: { '_id.month': 1 } }
     ]);
 
+    // Chuẩn hóa dữ liệu thành 12 tháng
     const studySeries = Array(12).fill(0);
     const passSeries = Array(12).fill(0);
     const completeOrSoonSeries = Array(12).fill(0);
@@ -104,6 +111,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     });
 
+    // Tổng
     const studyTotal = studySeries.reduce((a, b) => a + b, 0);
     const passTotal = passSeries.reduce((a, b) => a + b, 0);
     const completeOrSoonTotal = completeOrSoonSeries.reduce((a, b) => a + b, 0);
