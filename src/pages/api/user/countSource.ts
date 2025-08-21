@@ -23,9 +23,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         $match: {
           $or: [
             { status: 'study' },
-            { status: { $exists: false } },
-            { status: null },
-            { status: '' },
           ],
         },
       },
