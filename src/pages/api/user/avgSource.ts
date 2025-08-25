@@ -3,7 +3,7 @@ import { Types } from 'mongoose';
 
 import cors from 'src/utils/cors';
 import db from '../../../utils/db';
-import Intern from '../../../models/intern';
+// import Intern from '../../../models/intern';
 import Source from '../../../models/source';
 import Study from '../../../models/study';
 

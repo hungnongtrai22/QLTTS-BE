@@ -78,7 +78,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const completeOrSoonSeries = Array(7).fill(0);
 
     weeklyStatusData.forEach(item => {
-      const weekday = item._id.weekday; // 1=CN,2=T2,...,7=T7
+const { weekday } = item._id;
       // Chuyển về index 0=Thứ 2 ... 6=CN
       const index = (weekday + 5) % 7;
       if (item._id.status === 'study') {
