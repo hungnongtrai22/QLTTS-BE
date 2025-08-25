@@ -1,74 +1,94 @@
-// pages/api/stats/intern-source.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import { PipelineStage } from 'mongoose';
+import { PipelineStage, Types } from 'mongoose';
+
 import cors from 'src/utils/cors';
 import db from '../../../utils/db';
-import Intern from '../../../models/intern';
-import Study from '../../../models/study';
 import Source from '../../../models/source';
+import Study from '../../../models/study';
+
+const TZ_OFFSET_MS = 7 * 60 * 60 * 1000; // +7h (VN)
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
     await db.connectDB();
 
+    // --- xác định tháng trước theo giờ VN ---
     const now = new Date();
-    // Tháng trước
-    const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const lastDayLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+    const nowInVN = new Date(now.getTime() + TZ_OFFSET_MS);
+    const currentMonth = nowInVN.getMonth(); // 0-11
+    const currentYear = nowInVN.getFullYear();
 
-    const pipeline: PipelineStage[] = [
-      {
-        $lookup: {
-          from: 'studies',
-          localField: '_id',
-          foreignField: 'internId',
-          as: 'studies',
-        },
-      },
-      { $unwind: '$studies' },
+    // ngày đầu tháng hiện tại
+    const firstDayCurrentMonth = new Date(currentYear, currentMonth, 1);
+    // ngày đầu tháng trước
+    const firstDayPrevMonth =
+      currentMonth === 0
+        ? new Date(currentYear - 1, 11, 1)
+        : new Date(currentYear, currentMonth - 1, 1);
+
+    // --- main pipeline ---
+    const mainPipeline: PipelineStage[] = [
       {
         $match: {
-          'studies.monthAndYear': {
-            $gte: firstDayLastMonth,
-            $lte: lastDayLastMonth,
+          monthAndYear: {
+            $gte: firstDayPrevMonth,
+            $lt: firstDayCurrentMonth,
           },
         },
       },
       {
         $lookup: {
-          from: 'sources',
-          localField: 'source',
+          from: 'interns',
+          localField: 'internId',
           foreignField: '_id',
-          as: 'source',
+          as: 'intern',
         },
       },
-      { $unwind: '$source' },
+      { $unwind: '$intern' },
       {
         $group: {
-          _id: '$source._id',
-          sourceName: { $first: '$source.name' },
-          internCount: { $addToSet: '$_id' }, // tránh trùng intern
-          avgTotal: { $avg: '$studies.total' },
+          _id: '$intern.source',
+          avgScore: { $avg: '$total' },
+          internCount: { $addToSet: '$intern._id' }, // đếm intern duy nhất
         },
       },
       {
         $project: {
-          _id: 0,
-          sourceId: '$_id',
-          sourceName: 1,
+          avgScore: 1,
           internCount: { $size: '$internCount' },
-          avgTotal: { $round: ['$avgTotal', 2] },
         },
       },
-      { $sort: { sourceName: 1 } },
+      { $sort: { avgScore: -1 } },
     ];
 
-    const result = await Intern.aggregate(pipeline);
+    const stats = await Study.aggregate(mainPipeline as any[]);
 
-    return res.status(200).json(result);
-  } catch (error: any) {
-    console.error(error);
-    return res.status(500).json({ message: 'Server Error', error: error.message });
+    // lấy tên source
+    const sourceIds = stats.map((s: any) => s._id).filter(Boolean) as Types.ObjectId[];
+    const sources = await Source.find({ _id: { $in: sourceIds } }).lean();
+
+    const result = stats.map((s: any) => {
+      const src = (sources as any[]).find(
+        (sc) => sc._id.toString() === (s._id?.toString() || '')
+      );
+      return {
+        sourceId: s._id,
+        sourceName: src?.name || 'Nhật Tân',
+        averageScore: Math.round(s.avgScore * 100) / 100,
+        internCount: s.internCount,
+      };
+    });
+
+    return res.status(200).json({
+      prevMonth:
+        currentMonth === 0 ? 12 : currentMonth, // 1..12
+      prevYear:
+        currentMonth === 0 ? currentYear - 1 : currentYear,
+      stats: result,
+    });
+  } catch (error) {
+    console.error('[Average Study Score by Source API]:', error);
+    return res.status(500).json({ message: 'Server error', error });
   }
 }
