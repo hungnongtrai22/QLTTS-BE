@@ -51,6 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           _id: 0,
           internId: '$intern._id',
           internName: '$intern.name',
+          internAvatar: '$intern.avatar',
           sourceId: '$intern.source',
           totalScore: '$total',
         },
@@ -70,6 +71,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return {
         internId: t.internId,
         internName: t.internName,
+        internAvatar: t.internAvatar,
         sourceName: src?.name || 'Nhật Tân',
         totalScore: t.totalScore,
       };
