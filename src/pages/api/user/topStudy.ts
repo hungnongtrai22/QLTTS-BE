@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const nowInVN = new Date(now.getTime() + TZ_OFFSET_MS);
 
     // prev month/year in VN time
-    let prevMonthNumber = nowInVN.getMonth() === 0 ? 12 : nowInVN.getMonth(); // 1..12
+    const prevMonthNumber = nowInVN.getMonth() === 0 ? 12 : nowInVN.getMonth(); // 1..12
     let prevYear = nowInVN.getFullYear();
     if (nowInVN.getMonth() === 0) prevYear -= 1;
 
