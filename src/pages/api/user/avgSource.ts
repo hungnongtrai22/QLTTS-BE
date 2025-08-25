@@ -18,10 +18,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await cors(req, res);
     await db.connectDB();
 
-    // Xác định tháng hiện tại - 1
+    // Xác định khoảng thời gian tháng trước
     const now = new Date();
     const firstDayPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const lastDayPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+    const firstDayThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
     // Pipeline aggregate
     const pipeline = [
@@ -29,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         $match: {
           monthAndYear: {
             $gte: firstDayPrevMonth,
-            $lte: lastDayPrevMonth,
+            $lt: firstDayThisMonth, // loại bỏ tuyệt đối dữ liệu tháng này
           },
         },
       },

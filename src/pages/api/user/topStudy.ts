@@ -17,17 +17,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await cors(req, res);
     await db.connectDB();
 
-    // Xác định khoảng thời gian tháng trước
+    // Xác định khoảng thời gian tháng trước (giữ đúng cách tính gốc)
     const now = new Date();
     const firstDayPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const lastDayPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+
+    // THAY ĐỔI NHỎ, QUAN TRỌNG: cận trên exclusive là ngày đầu tháng này
+    const firstDayThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
     const pipeline: PipelineStage[] = [
       {
         $match: {
           monthAndYear: {
             $gte: firstDayPrevMonth,
-            $lte: lastDayPrevMonth,
+            // đổi từ $lte: lastDayPrevMonth -> $lt: firstDayThisMonth để không bao giờ ăn sang tháng hiện tại
+            $lt: firstDayThisMonth,
           },
         },
       },
@@ -56,7 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const topInterns = await Study.aggregate(pipeline);
 
     // Populate sourceName
-    const sourceIds = topInterns.map((t) => t.sourceId).filter(Boolean);
+    const sourceIds = topInterns.map((t) => t.sourceId).filter(Boolean as any);
     const sources = await Source.find({ _id: { $in: sourceIds } }).lean();
 
     const result = topInterns.map((t) => {
