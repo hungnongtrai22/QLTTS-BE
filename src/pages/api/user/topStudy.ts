@@ -1,136 +1,120 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { PipelineStage, Types } from 'mongoose';
+import { PipelineStage } from 'mongoose';
 
 import cors from 'src/utils/cors';
 import db from '../../../utils/db';
 import Source from '../../../models/source';
 import Study from '../../../models/study';
 
-interface SourceType {
-  _id: Types.ObjectId;
-  name?: string;
-}
-
-const TZ_OFFSET_MS = 7 * 60 * 60 * 1000; // +7 hours in ms
+const TZ_OFFSET_MS = 7 * 60 * 60 * 1000; // +7h (VN)
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
     await db.connectDB();
 
+    // --- xác định "tháng trước" theo giờ VN ---
     const now = new Date();
     const nowInVN = new Date(now.getTime() + TZ_OFFSET_MS);
+    const jsMonthVN = nowInVN.getMonth(); // 0-11
+    const currentYearVN = nowInVN.getFullYear();
 
-    // prev month/year in VN time
-    const prevMonthNumber = nowInVN.getMonth() === 0 ? 12 : nowInVN.getMonth(); // 1..12
-    let prevYear = nowInVN.getFullYear();
-    if (nowInVN.getMonth() === 0) prevYear -= 1;
+    let prevMonthMongo: number; // 1..12
+    let prevYear: number;
+    if (jsMonthVN === 0) {
+      prevMonthMongo = 12;
+      prevYear = currentYearVN - 1;
+    } else {
+      prevMonthMongo = jsMonthVN; // VD: tháng 8 => prev = 7
+      prevYear = currentYearVN;
+    }
 
-    // debug logs (xem trên CloudWatch / logs)
-    console.log('now (server local):', now.toISOString());
-    console.log('nowInVN (+7h):', nowInVN.toISOString());
-    console.log('prevMonthNumber (1..12):', prevMonthNumber, 'prevYear:', prevYear);
-
-    // Pipeline:
-    // 1) ensure dateField is Date (convert string to Date if needed with $toDate)
-    // 2) create month/year after adding TZ_OFFSET_MS (so month/year reflect VN timezone)
-    // 3) match by month/year (VN)
-    // 4) rest of pipeline (lookup, unwind, sort, limit, project)
-    const pipeline: PipelineStage[] = [
-      // convert string -> Date if necessary and guard nulls
+    // --- stage chuẩn hóa và lọc theo tháng/năm VN ---
+    const normalizeAndMatchStages: PipelineStage[] = [
       {
         $addFields: {
           dateField: {
             $cond: [
-              { $or: [{ $eq: [{ $type: '$monthAndYear' }, 'missing'] }, { $eq: [{ $type: '$monthAndYear' }, 'null'] }] },
+              {
+                $or: [
+                  { $eq: [{ $type: '$monthAndYear' }, 'missing'] },
+                  { $eq: [{ $type: '$monthAndYear' }, 'null'] },
+                ],
+              },
               null,
               {
                 $cond: [
                   { $eq: [{ $type: '$monthAndYear' }, 'string'] },
                   { $toDate: '$monthAndYear' },
-                  '$monthAndYear'
-                ]
-              }
-            ]
-          }
-        }
+                  '$monthAndYear',
+                ],
+              },
+            ],
+          },
+        },
       },
-
-      // optional: filter out docs without dateField early to speed up
-      {
-        $match: {
-          dateField: { $ne: null }
-        }
-      },
-
-      // compute month/year in VN by adding TZ offset
+      { $match: { dateField: { $ne: null } } },
       {
         $addFields: {
-          monthInVN: { $month: { $add: ['$dateField', TZ_OFFSET_MS] } }, // 1..12
+          monthInVN: { $month: { $add: ['$dateField', TZ_OFFSET_MS] } },
           yearInVN: { $year: { $add: ['$dateField', TZ_OFFSET_MS] } },
-        }
+        },
       },
-
-      // DEBUG STAGE: uncomment if you want to sample values (or temporarily keep)
-      // { $limit: 20 },
-      // { $project: { _id: 0, dateField: 1, monthInVN: 1, yearInVN: 1, total: 1 } },
-
-      // match prev month/year (VN)
       {
         $match: {
-          monthInVN: prevMonthNumber,
+          monthInVN: prevMonthMongo,
           yearInVN: prevYear,
-        }
+        },
       },
+    ];
 
-      // original pipeline logic
+    // --- main pipeline: group theo source ---
+    const mainPipeline: PipelineStage[] = [
+      ...normalizeAndMatchStages,
       {
         $lookup: {
           from: 'interns',
           localField: 'internId',
           foreignField: '_id',
-          as: 'intern'
-        }
+          as: 'intern',
+        },
       },
-      { $unwind: '$intern' },
-      { $sort: { total: -1 } },
-      { $limit: 3 },
+      { $unwind: { path: '$intern', preserveNullAndEmptyArrays: false } },
       {
-        $project: {
-          _id: 0,
-          internId: '$intern._id',
-          internName: '$intern.name',
-          internAvatar: '$intern.avatar',
-          sourceId: '$intern.source',
-          totalScore: '$total'
-        }
-      }
+        $group: {
+          _id: '$intern.source',
+          avgScore: { $avg: '$total' },
+          totalRecords: { $sum: 1 },
+        },
+      },
+      { $sort: { avgScore: -1 } },
     ];
 
-    // For debugging: run a small aggregation to inspect docMonth values if needed
-    // const debugSample = await Study.aggregate(pipeline.slice(0, 4) as any);
-    // console.log('DEBUG sample (first stages):', JSON.stringify(debugSample, null, 2));
+    const stats = await Study.aggregate(mainPipeline as any[]);
 
-    const topInterns = await Study.aggregate(pipeline as any[]);
-
-    // Populate sourceName
-    const sourceIds = topInterns.map((t: any) => t.sourceId).filter(Boolean);
+    // lấy tên source
+    const sourceIds = stats.map((s: any) => s._id).filter(Boolean);
     const sources = await Source.find({ _id: { $in: sourceIds } }).lean();
 
-    const result = topInterns.map((t: any) => {
-      const src = (sources as SourceType[]).find((s) => s._id.toString() === (t.sourceId?.toString() || ''));
+    const result = stats.map((s: any) => {
+      const src = (sources as any[]).find(
+        (sc) => sc._id.toString() === (s._id?.toString() || '')
+      );
       return {
-        internId: t.internId,
-        internName: t.internName,
-        internAvatar: t.internAvatar,
-        sourceName: src?.name || 'Nhật Tân',
-        totalScore: t.totalScore,
+        sourceId: s._id,
+        sourceName: src?.name || 'Không rõ nguồn',
+        averageScore: s.avgScore,
+        totalRecords: s.totalRecords,
       };
     });
 
-    return res.status(200).json(result);
+    return res.status(200).json({
+      prevMonth: prevMonthMongo,
+      prevYear,
+      stats: result,
+    });
   } catch (error) {
-    console.error('[Top 3 Interns by Total Score (Prev Month) API]:', error);
+    console.error('[Average Study Score by Source API]:', error);
     return res.status(500).json({ message: 'Server error', error });
   }
 }
