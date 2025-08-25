@@ -95,7 +95,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       { $unwind: '$intern' },
       { $sort: { total: -1 } },
-      { $limit: 3 },
+      { $limit: 6 },
       {
         $project: {
           _id: 0,
