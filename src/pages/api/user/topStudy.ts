@@ -3,7 +3,6 @@ import { PipelineStage, Types } from 'mongoose';
 
 import cors from 'src/utils/cors';
 import db from '../../../utils/db';
-// import Intern from '../../../models/intern';
 import Source from '../../../models/source';
 import Study from '../../../models/study';
 
@@ -17,22 +16,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await cors(req, res);
     await db.connectDB();
 
-    // Xác định khoảng thời gian tháng trước (giữ đúng cách tính gốc)
+    // --- CÁI QUAN TRỌNG: lấy tháng/năm "tháng trước" theo giờ VN (UTC+7) ---
+    const TZ_OFFSET_MS = 7 * 60 * 60 * 1000; // 7 giờ bằng bao nhiêu ms
     const now = new Date();
-    const firstDayPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const lastDayPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+    // giờ hiện tại theo VN
+    const nowInVN = new Date(now.getTime() + TZ_OFFSET_MS);
 
-    // THAY ĐỔI NHỎ, QUAN TRỌNG: cận trên exclusive là ngày đầu tháng này
-    const firstDayThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    // prev month number dưới dạng 1..12
+    let prevMonthNumber = nowInVN.getMonth() === 0 ? 12 : nowInVN.getMonth(); // nếu tháng VN hiện tại = 0 (Jan), prev = 12
+    let prevYear = nowInVN.getFullYear();
+    if (nowInVN.getMonth() === 0) prevYear -= 1;
 
+    // Pipeline: cộng TZ_OFFSET_MS vào field monthAndYear trước khi lấy $month/$year
     const pipeline: PipelineStage[] = [
       {
+        $addFields: {
+          // thêm 7 giờ để biểu diễn thời điểm theo VN, rồi lấy tháng/năm của giá trị đó
+          docMonth: { $month: { $add: ['$monthAndYear', TZ_OFFSET_MS] } }, // trả 1-12
+          docYear: { $year: { $add: ['$monthAndYear', TZ_OFFSET_MS] } },
+        },
+      },
+      {
         $match: {
-          monthAndYear: {
-            $gte: firstDayPrevMonth,
-            // đổi từ $lte: lastDayPrevMonth -> $lt: firstDayThisMonth để không bao giờ ăn sang tháng hiện tại
-            $lt: firstDayThisMonth,
-          },
+          docMonth: prevMonthNumber,
+          docYear: prevYear,
         },
       },
       {
@@ -44,8 +51,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       },
       { $unwind: '$intern' },
-      { $sort: { total: -1 } },   // sắp xếp theo total giảm dần
-      { $limit: 3 },              // lấy top 3
+      { $sort: { total: -1 } },
+      { $limit: 3 },
       {
         $project: {
           _id: 0,
