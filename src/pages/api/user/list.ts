@@ -1,3 +1,5 @@
+/* eslint-disable no-plusplus */
+
 import { NextApiRequest, NextApiResponse } from 'next';
 // utils
 import cors from 'src/utils/cors';
