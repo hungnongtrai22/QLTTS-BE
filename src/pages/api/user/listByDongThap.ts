@@ -7,6 +7,18 @@ import db from 'src/utils/db';
 import TradeUnion from 'src/models/tradeUnion';
 import Company from 'src/models/company';
 
+// Hàm tính tuổi
+function calculateAge(birthday: Date): number {
+  if (!birthday) return 0;
+  const today = new Date();
+  let age = today.getFullYear() - birthday.getFullYear();
+  const m = today.getMonth() - birthday.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthday.getDate())) {
+    age--;
+  }
+  return age;
+}
+
 // ----------------------------------------------------------------------
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -23,11 +35,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ],
     })
       .populate({ path: 'tradeUnion', model: TradeUnion })
-      .populate({ path: 'companySelect', model: Company });
+      .populate({ path: 'companySelect', model: Company })
+      .lean();
 
-    res.status(200).json({ interns });
+    const internsWithAge = interns.map((intern) => ({
+      ...intern,
+      age: calculateAge(intern.birthday as Date),
+    }));
+
+    res.status(200).json({ interns: internsWithAge });
   } catch (error) {
     console.error('[Intern API]: ', error);
-    res.status(400).json({ message: error });
+    res.status(400).json({ message: error instanceof Error ? error.message : error });
   }
 }
