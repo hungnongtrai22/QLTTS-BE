@@ -18,16 +18,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Missing internId, month, or year' });
     }
 
-    // Tạo khoảng thời gian đầu tháng đến cuối tháng
-    const startDate = new Date(year, month - 1, 1); // JS month: 0-11
-    const endDate = new Date(year, month, 0, 23, 59, 59, 999); // last day of the month
-
     const study = await Study.findOne({
       internId,
-      monthAndYear: {
-        $gte: startDate,
-        $lte: endDate,
-      },
+      $expr: {
+        $and: [
+          { $eq: [{ $month: "$monthAndYear" }, month] },
+          { $eq: [{ $year: "$monthAndYear" }, year] }
+        ]
+      }
     });
 
     if (!study) {
