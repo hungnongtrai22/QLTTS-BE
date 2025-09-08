@@ -18,7 +18,11 @@ const gallerySchema = new mongoose.Schema(
       // required: true,
     },
     imageUrl: [],
-    videoUrl: []
+    videoUrl: [],
+     status: {
+      type: String,
+      // required: true,
+    },
   },
   {
     timestamps: true,

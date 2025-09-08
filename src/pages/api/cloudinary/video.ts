@@ -6,27 +6,27 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type { NextHandler } from 'next-connect';
 import cors from 'src/utils/cors';
 
-// Tạo interface mở rộng để có `files`
+// Interface mở rộng để có `files`
 interface CustomNextApiRequest extends NextApiRequest {
   files: fileUpload.FileArray;
 }
 
-// Khai báo cấu hình cloudinary
+// Cloudinary config
 cloudinary.v2.config({
   cloud_name: 'dj4gvts4q',
   api_key: '268454143367214',
   api_secret: 'LSq_5jOOP96udG0PrRjFkFzGD7k',
 });
 
-// Adapter: chuyển express middleware thành middleware tương thích Next.js
+// Adapter: express middleware → Next.js
 const expressFileUpload = fileUpload({ useTempFiles: true });
 
 const fileUploadMiddleware = (req: NextApiRequest, res: NextApiResponse, next: NextHandler) => {
-  // @ts-ignore: ignore type mismatch
+  // @ts-ignore
   expressFileUpload(req, res, next);
 };
 
-// Tạo router với kiểu request mở rộng
+// Router với kiểu request mở rộng
 const router = createRouter<CustomNextApiRequest, NextApiResponse>().use(fileUploadMiddleware);
 
 export const config = {
@@ -35,52 +35,56 @@ export const config = {
   },
 };
 
-// POST: Upload video
+// POST: Upload file (ảnh hoặc video)
 router.post(async (req, res) => {
   try {
     await cors(req, res);
     const { path } = req.body;
     const files = Object.values(req.files || {}).flat() as UploadedFile[];
 
-    const videos = [];
+    const uploadedResults = [];
 
-    /* eslint-disable no-restricted-syntax, no-await-in-loop */
     for (const file of files) {
-      const vid = await uploadVideoToCloudinaryHandler(file, path);
-      videos.push(vid);
+      const result = await uploadToCloudinary(file, path);
+      uploadedResults.push(result);
       removeTmp(file.tempFilePath);
     }
-    /* eslint-enable no-restricted-syntax, no-await-in-loop */
 
-    return res.json(videos);
+    return res.json(uploadedResults);
   } catch (error: any) {
     return res.status(500).json({ message: error.message });
   }
 });
 
-// Upload video lên cloudinary
-const uploadVideoToCloudinaryHandler = async (
+// Upload file lên cloudinary (ảnh hoặc video)
+const uploadToCloudinary = async (
   file: UploadedFile,
   path: string
-): Promise<{ url: string; public_url: string }> => {
+): Promise<{ url: string; public_url: string; type: string }> => {
   return new Promise((resolve, reject) => {
-    cloudinary.v2.uploader.upload_large(
+    const uploader =
+      file.mimetype.startsWith('video/')
+        ? cloudinary.v2.uploader.upload_large
+        : cloudinary.v2.uploader.upload;
+
+    uploader(
       file.tempFilePath,
       {
         folder: path,
-        resource_type: 'video', // bắt buộc để Cloudinary hiểu là video
-        chunk_size: 6000000, // (tùy chọn) chia nhỏ khi upload file lớn
+        resource_type: 'auto', // auto detect (image / video / raw)
+        chunk_size: 6000000, // áp dụng khi upload_large
       },
       (err, result) => {
         if (err || !result) {
           removeTmp(file.tempFilePath);
           console.error(err);
-          return reject(new Error('Tải video lên không thành công.'));
+          return reject(new Error('Tải file lên không thành công.'));
         }
 
         resolve({
           url: result.secure_url,
           public_url: result.public_id,
+          type: result.resource_type,
         });
       }
     );

@@ -25,7 +25,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       postedAt,
       title,
       imageUrl,
-      videoUrl
+      videoUrl,
+      status: req?.body?.status
     }).save();
 
     return res.status(200).json({

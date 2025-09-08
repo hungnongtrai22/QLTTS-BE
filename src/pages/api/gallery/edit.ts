@@ -30,6 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         title,
         imageUrl,
         videoUrl,
+        status: req?.body?.status
       },
       { new: true }
     );
