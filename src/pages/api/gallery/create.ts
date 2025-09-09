@@ -18,7 +18,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       postedAt,
       title,
       imageUrl,
-      videoUrl
+      videoUrl,
+      description
     } = req.body;
     const newGallery = await new Gallery({
       internId,
@@ -26,6 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       title,
       imageUrl,
       videoUrl,
+      description,
       status: req?.body?.status
     }).save();
 

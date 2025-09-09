@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await db.connectDB();
 
-    const { _id, internId, postedAt, title, imageUrl, videoUrl } = req.body;
+    const { _id, internId, postedAt, title, imageUrl, videoUrl,description } = req.body;
 
     if (!_id) {
       return res.status(400).json({ message: 'Missing gallery ID (_id)' });
@@ -30,6 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         title,
         imageUrl,
         videoUrl,
+        description,
         status: req?.body?.status
       },
       { new: true }
