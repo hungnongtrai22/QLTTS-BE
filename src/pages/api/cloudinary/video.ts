@@ -23,13 +23,22 @@ cloudinary.v2.config({
 // Adapter: express middleware → Next.js
 const expressFileUpload = fileUpload({ useTempFiles: true });
 
-const fileUploadMiddleware = (req: NextApiRequest, res: NextApiResponse, next: NextHandler) => {
+const fileUploadMiddleware = (
+  req: NextApiRequest,
+  res: NextApiResponse,
+  next: NextHandler
+) => {
   // @ts-ignore
   expressFileUpload(req, res, next);
 };
 
-// Router với kiểu request mở rộng
-const router = createRouter<CustomNextApiRequest, NextApiResponse>().use(fileUploadMiddleware);
+// Router với middleware CORS toàn cục
+const router = createRouter<CustomNextApiRequest, NextApiResponse>()
+  .use(async (req, res, next) => {
+    await cors(req, res); // Thêm CORS header cho mọi request (kể cả OPTIONS)
+    next();
+  })
+  .use(fileUploadMiddleware);
 
 export const config = {
   api: {
@@ -40,7 +49,6 @@ export const config = {
 // POST: Upload file (ảnh hoặc video)
 router.post(async (req, res) => {
   try {
-    await cors(req, res);
     const { path } = req.body;
     const files = Object.values(req.files || {}).flat() as UploadedFile[];
 
