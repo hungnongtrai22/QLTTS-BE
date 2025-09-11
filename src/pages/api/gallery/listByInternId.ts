@@ -33,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       filter = { status };
     }
 
-    const galleries = await Gallery.find(filter);
+    const galleries = await Gallery.find(filter).sort({ postedAt: -1 });
 
     return res.status(200).json({
       galleries,
