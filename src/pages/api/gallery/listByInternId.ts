@@ -4,6 +4,8 @@ import cors from 'src/utils/cors';
 // _mock
 import 'src/models/intern'; // đảm bảo model Intern được đăng ký trước
 import Gallery from 'src/models/gallery';
+import Intern from 'src/models/intern';
+
 import db from 'src/utils/db';
 
 // ----------------------------------------------------------------------
@@ -32,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       filter = { status };
     }
 
-    const galleries = await Gallery.find(filter).populate('internId');
+    const galleries = await Gallery.find(filter);
 
     return res.status(200).json({
       galleries,
