@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 // utils
 import cors from 'src/utils/cors';
 // _mock
-import 'src/models/intern'; // đảm bảo model Intern được đăng ký trước
 import Gallery from 'src/models/gallery';
 import Intern from 'src/models/intern';
 
