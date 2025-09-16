@@ -13,25 +13,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await db.connectDB();
 
-    const { _id, listIntern: incomingIds } = req.body;
+    const { accountId, listIntern: incomingIds } = req.body;
 
-    if (!_id || !Array.isArray(incomingIds)) {
-      return res.status(400).json({ message: 'Missing or invalid compare ID or listIntern' });
+    if (!accountId || !Array.isArray(incomingIds)) {
+      return res.status(400).json({ message: 'Missing or invalid accountId or listIntern' });
     }
 
-    const compare = await Compare.findById(_id);
+    let compare = await Compare.findOne({ account: accountId });
+
     if (!compare) {
-      return res.status(404).json({ message: 'Compare not found' });
+      // Nếu chưa có Compare -> tạo mới
+      compare = new Compare({
+        account: accountId,
+        listIntern: Array.from(new Set(incomingIds)), // loại bỏ trùng lặp ngay từ đầu
+      });
+    } else {
+      // Nếu đã có -> thêm mới các intern chưa tồn tại
+      const existingIds = new Set((compare.listIntern || []).map((id: any) => id.toString()));
+
+      const newUniqueIds = Array.from(new Set(incomingIds)).filter(
+        (id) => !existingIds.has(id)
+      );
+
+      compare.listIntern = [...compare.listIntern, ...newUniqueIds];
     }
-
-    const existingIds = new Set((compare.listIntern || []).map((id: any) => id.toString()));
-
-    // Loại bỏ ID trùng lặp
-    const newUniqueIds = Array.from(new Set(incomingIds))
-      .filter((id) => !existingIds.has(id));
-
-    // Gộp lại danh sách
-    compare.listIntern = [...compare.listIntern, ...newUniqueIds];
 
     const updatedCompare = await compare.save();
 
