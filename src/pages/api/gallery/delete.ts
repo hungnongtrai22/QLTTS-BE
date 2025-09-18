@@ -1,11 +1,15 @@
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-await-in-loop */
+
 import { NextApiRequest, NextApiResponse } from 'next';
 // utils
 import cors from 'src/utils/cors';
 import Gallery from 'src/models/gallery';
+import { v2 as cloudinary } from 'cloudinary';
+
 import db from '../../../utils/db';
 
 // cloudinary
-import { v2 as cloudinary } from 'cloudinary';
 
 // cấu hình cloudinary (có thể để ở file riêng utils/cloudinary.ts)
 cloudinary.config({
