@@ -5,12 +5,16 @@ import { NextApiRequest, NextApiResponse } from 'next';
 // utils
 import cors from 'src/utils/cors';
 import Gallery from 'src/models/gallery';
-// import { v2 as cloudinary } from 'cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
 
 import db from '../../../utils/db';
 
 // cloudinary
-
+cloudinary.config({
+  cloud_name: 'dj4gvts4q',
+  api_key: '268454143367214',
+  api_secret: 'LSq_5jOOP96udG0PrRjFkFzGD7k',
+});
 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -35,21 +39,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(404).json({ message: 'Gallery not found' });
     }
 
-    // // xoá ảnh trên cloudinary
-    // if (gallery.imageUrl && gallery.imageUrl.length > 0) {
-    //   for (const url of gallery.imageUrl) {
-    //     try {
-    //       // Lấy public_id từ url (vd: https://res.cloudinary.com/.../upload/v1234567/abcxyz.jpg)
-    //       const parts = url.split('/');
-    //       const filename = parts[parts.length - 1]; // abcxyz.jpg
-    //       const publicId = parts.slice(parts.indexOf('upload') + 1).join('/').split('.')[0]; // abcxyz (hoặc folder/abcxyz nếu có folder)
+    // xoá ảnh trên cloudinary
+    if (gallery.imageUrl && gallery.imageUrl.length > 0) {
+      for (const url of gallery.imageUrl) {
+        try {
+          // Lấy public_id từ url (vd: https://res.cloudinary.com/.../upload/v1234567/abcxyz.jpg)
+          const parts = url.split('/');
+          const filename = parts[parts.length - 1]; // abcxyz.jpg
+          const publicId = parts.slice(parts.indexOf('upload') + 1).join('/').split('.')[0]; // abcxyz (hoặc folder/abcxyz nếu có folder)
 
-    //       await cloudinary.uploader.destroy(publicId);
-    //     } catch (err) {
-    //       console.error('Error deleting image from Cloudinary:', err);
-    //     }
-    //   }
-    // }
+          await cloudinary.uploader.destroy(publicId);
+        } catch (err) {
+          console.error('Error deleting image from Cloudinary:', err);
+        }
+      }
+    }
 
     // xoá gallery trong DB
     await Gallery.findByIdAndDelete(_id);
