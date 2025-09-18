@@ -17,20 +17,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     await cors(req, res);
 
-    if (req.method !== 'DELETE') {
+   if (req.method !== 'PUT') {
       return res.status(405).json({ message: 'Method not allowed' });
     }
 
     await db.connectDB();
 
-    const { id } = req.query; // id gallery truyền qua query
+    const { _id } = req.body;
 
-    if (!id) {
+    if (!_id) {
       return res.status(400).json({ message: 'Missing gallery id' });
     }
 
     // tìm gallery
-    const gallery = await Gallery.findById(id);
+    const gallery = await Gallery.findById(_id);
     if (!gallery) {
       return res.status(404).json({ message: 'Gallery not found' });
     }
@@ -52,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // }
 
     // xoá gallery trong DB
-    await Gallery.findByIdAndDelete(id);
+    await Gallery.findByIdAndDelete(_id);
 
     return res.status(200).json({ message: 'Gallery deleted successfully' });
   } catch (error) {
