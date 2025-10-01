@@ -226,6 +226,9 @@ const internSchema = new mongoose.Schema(
     startDate: {
       type: Date,
     },
+    departureDate:{
+      type: Date,
+    }
   },
   {
     timestamps: true,
