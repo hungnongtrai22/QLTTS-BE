@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const { internId, month, year } = req.body;
 
-    if (!internId || !month || !year) {
+    if (!internId || !year) {
       return res.status(400).json({ message: 'Missing internId, month, or year' });
     }
 
