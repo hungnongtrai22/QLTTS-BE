@@ -28,6 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         _id: req?.body?._id,
         status: req?.body?.status,
         departureDate: req?.body?.departureDate,
+        type: req?.body?.type
       },
       { new: true }
     );

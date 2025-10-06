@@ -228,7 +228,11 @@ const internSchema = new mongoose.Schema(
     },
     departureDate:{
       type: Date,
-    }
+    },
+    type: {
+      type: String,
+      default: 'intern',
+    },
   },
   {
     timestamps: true,
