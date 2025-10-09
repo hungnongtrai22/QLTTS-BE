@@ -233,6 +233,7 @@ const internSchema = new mongoose.Schema(
       type: String,
       default: 'intern',
     },
+    certificate: [],
   },
   {
     timestamps: true,
