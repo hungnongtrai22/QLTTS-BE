@@ -16,20 +16,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await db.connectDB();
 
-    const { _id } = req.body;
+    // Lấy _id và phần tử certificate cần thêm từ body
+    const { _id, certificate } = req.body; 
 
     if (!_id) {
       return res.status(400).json({ message: 'Missing intern ID (_id)' });
     }
+    if (certificate === undefined) {
+      return res.status(400).json({ message: 'Missing certificate data to add' });
+    }
 
+    // ✅ Dùng $push trực tiếp để thêm một phần tử vào mảng 'certificate'
     const updatedIntern = await Intern.findByIdAndUpdate(
       _id,
-      {
-        _id: req?.body?._id,
-        certificate: req?.body?.certificate,
-
+      { 
+        $push: { certificate: certificate } 
       },
-      { new: true }
+      { new: true } // Trả về document sau khi đã cập nhật
     );
 
     if (!updatedIntern) {
