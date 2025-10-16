@@ -234,6 +234,9 @@ const internSchema = new mongoose.Schema(
       default: 'intern',
     },
     certificate: [],
+    pushup: {
+      type: Number,
+    },
   },
   {
     timestamps: true,

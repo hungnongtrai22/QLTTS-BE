@@ -29,6 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         math: req?.body?.math,
         kraepelin1: req?.body?.kraepelin1,
         kraepelin2: req?.body?.kraepelin2,
+        pushup: req?.body?.pushup,
       },
       { new: true }
     );
