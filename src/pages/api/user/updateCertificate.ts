@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const updatedIntern = await Intern.findByIdAndUpdate(
       _id,
       {
-        $push: { certificate: certificate } // Bỏ $each vì chỉ thêm một object
+        $push: { certificate } // Bỏ $each vì chỉ thêm một object
       },
       { new: true } // Trả về document sau khi đã cập nhật
     );
