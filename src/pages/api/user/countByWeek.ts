@@ -25,15 +25,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       {
         $project: {
           status: 1,
-          createdAt: 1,
+          createdAt: 1, // Giữ lại cho default
           updatedAt: 1,
+          studyDate: 1, // Thêm studyDate
+          departureDate: 1, // Thêm departureDate
 
           // Chọn ngày để tính toán
           dateForCalc: {
             $switch: {
               branches: [
-                { case: { $eq: ['$status', 'study'] }, then: '$createdAt' },
-                { case: { $in: ['$status', ['pass', 'complete', 'soon']] }, then: '$updatedAt' }
+                // Nếu là study -> lấy từ studyDate
+                { case: { $eq: ['$status', 'study'] }, then: '$studyDate' },
+                // Nếu là pass/complete/soon -> lấy từ departureDate
+                { case: { $in: ['$status', ['pass', 'complete', 'soon']] }, then: '$departureDate' }
               ],
               default: '$createdAt'
             }
@@ -56,6 +60,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       {
         $match: {
           dateForCalc: { $gte: monday, $lte: sunday }
+          // Những bản ghi có dateForCalc là null (do studyDate/departureDate null) 
+          // sẽ tự động bị lọc ở bước này
         }
       },
       {
@@ -78,8 +84,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const completeOrSoonSeries = Array(7).fill(0);
 
     weeklyStatusData.forEach(item => {
-const { weekday } = item._id;
+      const { weekday } = item._id;
       // Chuyển về index 0=Thứ 2 ... 6=CN
+      // (1=CN -> (1+5)%7 = 6)
+      // (2=T2 -> (2+5)%7 = 0)
+      // (7=T7 -> (7+5)%7 = 5)
       const index = (weekday + 5) % 7;
       if (item._id.status === 'study') {
         studySeries[index] = item.count;

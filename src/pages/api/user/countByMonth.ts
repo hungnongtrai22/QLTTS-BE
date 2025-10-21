@@ -17,22 +17,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       {
         $project: {
           status: 1,
-          createdAt: 1,
+          createdAt: 1, // Giữ lại cho default
           updatedAt: 1,
+          studyDate: 1, // Thêm studyDate
+          departureDate: 1, // Thêm departureDate
 
           // Lấy ngày
           day: {
             $switch: {
               branches: [
-                // Nếu là study -> lấy từ createdAt
+                // Nếu là study -> lấy từ studyDate
                 {
                   case: { $eq: ['$status', 'study'] },
-                  then: { $dayOfMonth: '$createdAt' }
+                  then: { $dayOfMonth: '$studyDate' }
                 },
-                // Nếu là pass/complete/soon -> lấy từ updatedAt
+                // Nếu là pass/complete/soon -> lấy từ departureDate
                 {
                   case: { $in: ['$status', ['pass', 'complete', 'soon']] },
-                  then: { $dayOfMonth: '$updatedAt' }
+                  then: { $dayOfMonth: '$departureDate' }
                 }
               ],
               default: { $dayOfMonth: '$createdAt' }
@@ -43,13 +45,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           month: {
             $switch: {
               branches: [
+                // Nếu là study -> lấy từ studyDate
                 {
                   case: { $eq: ['$status', 'study'] },
-                  then: { $month: '$createdAt' }
+                  then: { $month: '$studyDate' }
                 },
+                // Nếu là pass/complete/soon -> lấy từ departureDate
                 {
                   case: { $in: ['$status', ['pass', 'complete', 'soon']] },
-                  then: { $month: '$updatedAt' }
+                  then: { $month: '$departureDate' }
                 }
               ],
               default: { $month: '$createdAt' }
@@ -60,13 +64,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           year: {
             $switch: {
               branches: [
+                // Nếu là study -> lấy từ studyDate
                 {
                   case: { $eq: ['$status', 'study'] },
-                  then: { $year: '$createdAt' }
+                  then: { $year: '$studyDate' }
                 },
+                // Nếu là pass/complete/soon -> lấy từ departureDate
                 {
                   case: { $in: ['$status', ['pass', 'complete', 'soon']] },
-                  then: { $year: '$updatedAt' }
+                  then: { $year: '$departureDate' }
                 }
               ],
               default: { $year: '$createdAt' }
@@ -121,13 +127,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const completeOrSoonSeries = Array(daysInMonth).fill(0);
 
     dailyStatusData.forEach(item => {
-      const dayIndex = item._id.day - 1;
-      if (item._id.status === 'study') {
-        studySeries[dayIndex] = item.count;
-      } else if (item._id.status === 'pass') {
-        passSeries[dayIndex] = item.count;
-      } else if (item._id.status === 'completeOrSoon') {
-        completeOrSoonSeries[dayIndex] = item.count;
+        // Kiểm tra nếu item._id.day hợp lệ (không null)
+      if (item._id.day) {
+        const dayIndex = item._id.day - 1;
+        if (item._id.status === 'study') {
+          studySeries[dayIndex] = item.count;
+        } else if (item._id.status === 'pass') {
+          passSeries[dayIndex] = item.count;
+        } else if (item._id.status === 'completeOrSoon') {
+          completeOrSoonSeries[dayIndex] = item.count;
+        }
       }
     });
 

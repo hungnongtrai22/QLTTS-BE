@@ -14,25 +14,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       {
         $project: {
           status: 1,
-          createdAt: 1,
+          createdAt: 1, // Giữ lại để dùng cho default case
           updatedAt: 1,
+          studyDate: 1, // Thêm studyDate để truy cập
+          departureDate: 1, // Thêm departureDate để truy cập
 
           // Lấy tháng
           month: {
             $switch: {
               branches: [
-                // Nếu là study -> lấy tháng từ createdAt
+                // Nếu là study -> lấy tháng từ studyDate
                 {
                   case: { $eq: ['$status', 'study'] },
-                  then: { $month: '$createdAt' }
+                  then: { $month: '$studyDate' }
                 },
-                // Nếu là pass/complete/soon -> lấy tháng từ updatedAt
+                // Nếu là pass/complete/soon -> lấy tháng từ departureDate
                 {
                   case: { $in: ['$status', ['pass', 'complete', 'soon']] },
-                  then: { $month: '$updatedAt' }
+                  then: { $month: '$departureDate' }
                 }
               ],
-              default: { $month: '$createdAt' }
+              default: { $month: '$createdAt' } // Giữ nguyên createdAt cho các trường hợp khác
             }
           },
 
@@ -40,16 +42,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           year: {
             $switch: {
               branches: [
+                // Nếu là study -> lấy năm từ studyDate
                 {
                   case: { $eq: ['$status', 'study'] },
-                  then: { $year: '$createdAt' }
+                  then: { $year: '$studyDate' }
                 },
+                // Nếu là pass/complete/soon -> lấy năm từ departureDate
                 {
                   case: { $in: ['$status', ['pass', 'complete', 'soon']] },
-                  then: { $year: '$updatedAt' }
+                  then: { $year: '$departureDate' }
                 }
               ],
-              default: { $year: '$createdAt' }
+              default: { $year: '$createdAt' } // Giữ nguyên createdAt cho các trường hợp khác
             }
           },
 
@@ -101,13 +105,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const completeOrSoonSeries = Array(12).fill(0);
 
     monthlyStatusData.forEach(item => {
-      const monthIndex = item._id.month - 1;
-      if (item._id.status === 'study') {
-        studySeries[monthIndex] = item.count;
-      } else if (item._id.status === 'pass') {
-        passSeries[monthIndex] = item.count;
-      } else if (item._id.status === 'completeOrSoon') {
-        completeOrSoonSeries[monthIndex] = item.count;
+      // Thêm kiểm tra item._id.month có tồn tại (phòng trường hợp studyDate/departureDate bị null)
+      if (item._id.month) {
+        const monthIndex = item._id.month - 1;
+        if (item._id.status === 'study') {
+          studySeries[monthIndex] = item.count;
+        } else if (item._id.status === 'pass') {
+          passSeries[monthIndex] = item.count;
+        } else if (item._id.status === 'completeOrSoon') {
+          completeOrSoonSeries[monthIndex] = item.count;
+        }
       }
     });
 
