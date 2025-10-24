@@ -280,7 +280,7 @@ const internSchema = new mongoose.Schema(
       type: String,
     },
     contractDate: {
-      type: String,
+      type: Date,
     },
    
     contractPeriod: {
