@@ -244,7 +244,7 @@ const internSchema = new mongoose.Schema(
       type: String,
     },
     citizenDate: {
-      type: String,
+      type: Date,
     },
     citizenPlace: {
       type: String,
