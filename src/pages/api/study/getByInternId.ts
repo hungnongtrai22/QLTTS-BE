@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const study = await Study.findOne({
       internId: req.body.internId,
-    });
+    }).sort({ time: -1 });
     
     return res.status(200).json({
       study,
