@@ -42,6 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       email: req?.body?.email,
       role: req?.body?.role,
       tradeUnion: req?.body?.tradeUnion,
+      companySelect: req?.body?.companySelect,
       source: req?.body?.source,
     });
 

@@ -1,5 +1,3 @@
-/* eslint-disable no-plusplus */
-
 import { NextApiRequest, NextApiResponse } from 'next';
 // utils
 import cors from 'src/utils/cors';
@@ -16,7 +14,7 @@ function calculateAge(birthday: Date): number {
   let age = today.getFullYear() - birthday.getFullYear();
   const m = today.getMonth() - birthday.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < birthday.getDate())) {
-    age--;
+    age -= 1;
   }
   return age;
 }
@@ -28,9 +26,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await cors(req, res);
     await db.connectDB();
 
-    const { tradeUnion, companySelect } = req.body;
+    const { tradeUnion } = req.body;
+    let companySelect = req.body;
+    // companySelect có thể là 1 ID hoặc 1 mảng ID => đảm bảo dạng mảng
+    if (companySelect && !Array.isArray(companySelect)) {
+      companySelect = [companySelect];
+    }
 
-    const interns = await Intern.find({ tradeUnion, companySelect })
+    const filter: any = {};
+
+    if (tradeUnion) {
+      filter.tradeUnion = tradeUnion;
+    }
+
+    if (companySelect && companySelect.length > 0) {
+      filter.companySelect = { $in: companySelect };
+    }
+
+    const interns = await Intern.find(filter)
       .populate({ path: 'tradeUnion', model: TradeUnion })
       .populate({ path: 'companySelect', model: Company })
       .lean();
