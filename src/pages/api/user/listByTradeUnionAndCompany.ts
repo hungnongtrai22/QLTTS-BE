@@ -26,12 +26,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await cors(req, res);
     await db.connectDB();
 
-    const { tradeUnion } = req.body;
-    let companySelect = req.body;
-    // companySelect có thể là 1 ID hoặc 1 mảng ID => đảm bảo dạng mảng
-    if (companySelect && !Array.isArray(companySelect)) {
-      companySelect = [companySelect];
-    }
+    const { tradeUnion,companySelect } = req.body;
+    // let companySelect = req.body;
+    let companyList = companySelect;
+
+// đảm bảo là array
+if (companyList && !Array.isArray(companyList)) {
+  companyList = [companyList];
+}
 
     const filter: any = {};
 
@@ -39,9 +41,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       filter.tradeUnion = tradeUnion;
     }
 
-    if (companySelect && companySelect.length > 0) {
-      filter.companySelect = { $in: companySelect };
-    }
+ if (companyList && companyList.length > 0) {
+  filter.companySelect = { $in: companyList };
+}
 
     const interns = await Intern.find(filter)
       .populate({ path: 'tradeUnion', model: TradeUnion })
