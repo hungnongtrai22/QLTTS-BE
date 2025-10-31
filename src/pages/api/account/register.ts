@@ -46,6 +46,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       source: req?.body?.source,
     });
 
+    // console.log("newUser", newUser, req?.body?.companySelect);
+
     const accessToken = sign({ userId: newUser._id }, JWT_SECRET, {
       expiresIn: JWT_EXPIRES_IN,
     });

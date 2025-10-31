@@ -27,7 +27,12 @@ const accountSchema = new mongoose.Schema(
       type: ObjectId,
       ref: 'TradeUnion',
     },
-    companySelect: [],
+    companySelect: [
+      {
+        type: ObjectId,
+        ref: 'Company',
+      },
+    ],
     source: {
       type: ObjectId,
       ref: 'source',
