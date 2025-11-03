@@ -229,6 +229,9 @@ const internSchema = new mongoose.Schema(
     departureDate:{
       type: Date,
     },
+    returnDate:{
+      type: Date,
+    },
     type: {
       type: String,
       default: 'intern',
