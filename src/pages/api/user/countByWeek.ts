@@ -8,13 +8,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await cors(req, res);
     await db.connectDB();
 
+    // ----- FIX TIMEZONE VN (UTC+7) -----
     const now = new Date();
-    const currentDate = now.getDate();
+    const vnNow = new Date(now.getTime() + 7 * 60 * 60 * 1000);
 
-    // Lấy ngày bắt đầu tuần (thứ 2) và ngày kết thúc tuần (chủ nhật)
-    const dayOfWeek = now.getDay(); // 0=CN, 1=T2,...,6=T7
-    const monday = new Date(now);
-    monday.setDate(currentDate - ((dayOfWeek + 6) % 7));
+    const dayOfWeek = vnNow.getDay(); // 0=CN, ..., 6=T7
+
+    const monday = new Date(vnNow);
+    monday.setDate(vnNow.getDate() - ((dayOfWeek + 6) % 7)); // Get Monday
     monday.setHours(0, 0, 0, 0);
 
     const sunday = new Date(monday);
@@ -25,25 +26,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       {
         $project: {
           status: 1,
-          createdAt: 1, // Giữ lại cho default
-          updatedAt: 1,
-          studyDate: 1, // Thêm studyDate
-          departureDate: 1, // Thêm departureDate
+          createdAt: 1,
+          studyDate: 1,
+          departureDate: 1,
 
-          // Chọn ngày để tính toán
+          // ----- Pick date field based on status -----
           dateForCalc: {
             $switch: {
               branches: [
-                // Nếu là study -> lấy từ studyDate
                 { case: { $eq: ['$status', 'study'] }, then: '$studyDate' },
-                // Nếu là pass/complete/soon -> lấy từ departureDate
                 { case: { $in: ['$status', ['pass', 'complete', 'soon']] }, then: '$departureDate' }
               ],
               default: '$createdAt'
             }
           },
 
-          // Chuẩn hóa status
           normalizedStatus: {
             $switch: {
               branches: [
@@ -56,18 +53,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }
         }
       },
-      // Lọc theo tuần hiện tại
       {
         $match: {
           dateForCalc: { $gte: monday, $lte: sunday }
-          // Những bản ghi có dateForCalc là null (do studyDate/departureDate null) 
-          // sẽ tự động bị lọc ở bước này
         }
       },
       {
         $project: {
           normalizedStatus: 1,
-          weekday: { $dayOfWeek: '$dateForCalc' } // 1=CN,2=T2,...,7=T7
+          weekday: { $dayOfWeek: '$dateForCalc' }
         }
       },
       {
@@ -79,17 +73,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       { $sort: { '_id.weekday': 1 } }
     ]);
 
-    const studySeries = Array(7).fill(0); // T2->CN
+    const studySeries = Array(7).fill(0);
     const passSeries = Array(7).fill(0);
     const completeOrSoonSeries = Array(7).fill(0);
 
     weeklyStatusData.forEach(item => {
-      const { weekday } = item._id;
-      // Chuyển về index 0=Thứ 2 ... 6=CN
-      // (1=CN -> (1+5)%7 = 6)
-      // (2=T2 -> (2+5)%7 = 0)
-      // (7=T7 -> (7+5)%7 = 5)
+      const weekday = item._id.weekday; // 1=CN,2=T2,...7=T7
+
+      // Convert to index Monday→Sunday (0-6)
       const index = (weekday + 5) % 7;
+
       if (item._id.status === 'study') {
         studySeries[index] = item.count;
       } else if (item._id.status === 'pass') {
@@ -109,6 +102,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       pass: { total: passTotal, chart: { series: passSeries } },
       completeOrSoon: { total: completeOrSoonTotal, chart: { series: completeOrSoonSeries } }
     });
+
   } catch (error) {
     console.error('[Count Intern Weekly API]: ', error);
     return res.status(500).json({ message: 'Server error', error });

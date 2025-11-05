@@ -14,46 +14,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       {
         $project: {
           status: 1,
-          createdAt: 1, // Giữ lại để dùng cho default case
-          updatedAt: 1,
-          studyDate: 1, // Thêm studyDate để truy cập
-          departureDate: 1, // Thêm departureDate để truy cập
+          studyDate: 1,
+          departureDate: 1,
+          createdAt: 1,
 
-          // Lấy tháng
+          // Lấy tháng theo timezone VN
           month: {
             $switch: {
               branches: [
-                // Nếu là study -> lấy tháng từ studyDate
                 {
                   case: { $eq: ['$status', 'study'] },
-                  then: { $month: '$studyDate' }
+                  then: {
+                    $dateToParts: {
+                      date: "$studyDate",
+                      timezone: "Asia/Ho_Chi_Minh"
+                    }
+                  }
                 },
-                // Nếu là pass/complete/soon -> lấy tháng từ departureDate
                 {
                   case: { $in: ['$status', ['pass', 'complete', 'soon']] },
-                  then: { $month: '$departureDate' }
+                  then: {
+                    $dateToParts: {
+                      date: "$departureDate",
+                      timezone: "Asia/Ho_Chi_Minh"
+                    }
+                  }
                 }
               ],
-              default: { $month: '$createdAt' } // Giữ nguyên createdAt cho các trường hợp khác
-            }
-          },
-
-          // Lấy năm
-          year: {
-            $switch: {
-              branches: [
-                // Nếu là study -> lấy năm từ studyDate
-                {
-                  case: { $eq: ['$status', 'study'] },
-                  then: { $year: '$studyDate' }
-                },
-                // Nếu là pass/complete/soon -> lấy năm từ departureDate
-                {
-                  case: { $in: ['$status', ['pass', 'complete', 'soon']] },
-                  then: { $year: '$departureDate' }
+              default: {
+                $dateToParts: {
+                  date: "$createdAt",
+                  timezone: "Asia/Ho_Chi_Minh"
                 }
-              ],
-              default: { $year: '$createdAt' } // Giữ nguyên createdAt cho các trường hợp khác
+              }
             }
           },
 
@@ -61,18 +54,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           normalizedStatus: {
             $switch: {
               branches: [
-                {
-                  case: { $eq: ['$status', 'study'] },
-                  then: 'study'
-                },
-                {
-                  case: { $eq: ['$status', 'pass'] },
-                  then: 'pass'
-                },
-                {
-                  case: { $in: ['$status', ['complete', 'soon']] },
-                  then: 'completeOrSoon'
-                }
+                { case: { $eq: ['$status', 'study'] }, then: 'study' },
+                { case: { $eq: ['$status', 'pass'] }, then: 'pass' },
+                { case: { $in: ['$status', ['complete', 'soon']] }, then: 'completeOrSoon' }
               ],
               default: 'other'
             }
@@ -80,12 +64,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       },
 
-      // Chỉ lấy năm hiện tại
+      // Extract month and year from parts
+      {
+        $addFields: {
+          month: '$month.month',
+          year: '$month.year'
+        }
+      },
+
+      // Lọc theo năm hiện tại
       {
         $match: { year: currentYear }
       },
 
-      // Group theo tháng + status
+      // Group theo month + status
       {
         $group: {
           _id: {
@@ -99,35 +91,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       { $sort: { '_id.month': 1 } }
     ]);
 
-    // Chuẩn hóa dữ liệu thành 12 tháng
+    // Đưa về series 12 tháng
     const studySeries = Array(12).fill(0);
     const passSeries = Array(12).fill(0);
     const completeOrSoonSeries = Array(12).fill(0);
 
     monthlyStatusData.forEach(item => {
-      // Thêm kiểm tra item._id.month có tồn tại (phòng trường hợp studyDate/departureDate bị null)
       if (item._id.month) {
         const monthIndex = item._id.month - 1;
-        if (item._id.status === 'study') {
-          studySeries[monthIndex] = item.count;
-        } else if (item._id.status === 'pass') {
-          passSeries[monthIndex] = item.count;
-        } else if (item._id.status === 'completeOrSoon') {
-          completeOrSoonSeries[monthIndex] = item.count;
-        }
+        if (item._id.status === 'study') studySeries[monthIndex] = item.count;
+        if (item._id.status === 'pass') passSeries[monthIndex] = item.count;
+        if (item._id.status === 'completeOrSoon') completeOrSoonSeries[monthIndex] = item.count;
       }
     });
 
-    // Tổng
-    const studyTotal = studySeries.reduce((a, b) => a + b, 0);
-    const passTotal = passSeries.reduce((a, b) => a + b, 0);
-    const completeOrSoonTotal = completeOrSoonSeries.reduce((a, b) => a + b, 0);
-
     return res.status(200).json({
-      total: studyTotal + passTotal + completeOrSoonTotal,
-      study: { total: studyTotal, chart: { series: studySeries } },
-      pass: { total: passTotal, chart: { series: passSeries } },
-      completeOrSoon: { total: completeOrSoonTotal, chart: { series: completeOrSoonSeries } }
+      total:
+        studySeries.reduce((a, b) => a + b, 0) +
+        passSeries.reduce((a, b) => a + b, 0) +
+        completeOrSoonSeries.reduce((a, b) => a + b, 0),
+
+      study: { total: studySeries.reduce((a, b) => a + b, 0), chart: { series: studySeries } },
+      pass: { total: passSeries.reduce((a, b) => a + b, 0), chart: { series: passSeries } },
+      completeOrSoon: { total: completeOrSoonSeries.reduce((a, b) => a + b, 0), chart: { series: completeOrSoonSeries } }
     });
   } catch (error) {
     console.error('[Count Intern API]: ', error);
