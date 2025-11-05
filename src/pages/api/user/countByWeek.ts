@@ -8,19 +8,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await cors(req, res);
     await db.connectDB();
 
-    // ----- FIX TIMEZONE VN (UTC+7) -----
     const now = new Date();
-    const vnNow = new Date(now.getTime() + 7 * 60 * 60 * 1000);
 
-    const dayOfWeek = vnNow.getDay(); // 0=CN, ..., 6=T7
+    // Convert JS date to VN timezone date (strip timezone offset)
+    const offset = 7 * 60; // VN GMT+7
+    const nowVN = new Date(now.getTime() + offset * 60 * 1000);
 
-    const monday = new Date(vnNow);
-    monday.setDate(vnNow.getDate() - ((dayOfWeek + 6) % 7)); // Get Monday
-    monday.setHours(0, 0, 0, 0);
+    const currentDate = nowVN.getUTCDate();
+    const dayOfWeek = nowVN.getUTCDay(); // 0=CN,1=T2,...6=T7
 
+    // Start of VN week (Monday)
+    const monday = new Date(nowVN);
+    monday.setUTCDate(currentDate - ((dayOfWeek + 6) % 7));
+    monday.setUTCHours(0, 0, 0, 0);
+
+    // End of week (Sunday)
     const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    sunday.setHours(23, 59, 59, 999);
+    sunday.setUTCDate(monday.getUTCDate() + 6);
+    sunday.setUTCHours(23, 59, 59, 999);
 
     const weeklyStatusData = await Intern.aggregate([
       {
@@ -30,7 +35,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           studyDate: 1,
           departureDate: 1,
 
-          // ----- Pick date field based on status -----
           dateForCalc: {
             $switch: {
               branches: [
@@ -54,14 +58,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       },
       {
-        $match: {
-          dateForCalc: { $gte: monday, $lte: sunday }
+        $project: {
+          normalizedStatus: 1,
+          dateForCalc: 1,
+          weekday: {
+            $dayOfWeek: {
+              date: '$dateForCalc',
+              timezone: 'Asia/Ho_Chi_Minh'
+            }
+          }
         }
       },
       {
-        $project: {
-          normalizedStatus: 1,
-          weekday: { $dayOfWeek: '$dateForCalc' }
+        $match: {
+          dateForCalc: { $gte: monday, $lte: sunday }
         }
       },
       {
@@ -78,18 +88,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const completeOrSoonSeries = Array(7).fill(0);
 
     weeklyStatusData.forEach(item => {
-      const weekday = item._id.weekday; // 1=CN,2=T2,...7=T7
-
-      // Convert to index Monday→Sunday (0-6)
-      const index = (weekday + 5) % 7;
-
-      if (item._id.status === 'study') {
-        studySeries[index] = item.count;
-      } else if (item._id.status === 'pass') {
-        passSeries[index] = item.count;
-      } else if (item._id.status === 'completeOrSoon') {
-        completeOrSoonSeries[index] = item.count;
-      }
+      const index = (item._id.weekday + 5) % 7;
+      if (item._id.status === 'study') studySeries[index] = item.count;
+      if (item._id.status === 'pass') passSeries[index] = item.count;
+      if (item._id.status === 'completeOrSoon') completeOrSoonSeries[index] = item.count;
     });
 
     const studyTotal = studySeries.reduce((a, b) => a + b, 0);
