@@ -97,6 +97,10 @@ const studySchema = new mongoose.Schema(
       type: String,
       // required: true,
     },
+    isPublic: {
+      type: Boolean,
+      default: true,
+    }
   },
   {
     timestamps: true,

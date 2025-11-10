@@ -63,6 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       comment,
       monthAndYear,
       tearcher: req?.body?.teacher,
+      isPublic: req?.body?.isPublic,
     }).save();
 
     return res.status(200).json({

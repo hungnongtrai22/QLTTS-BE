@@ -18,13 +18,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Missing internId, month, or year' });
     }
 
-    const start = new Date(year, month - 1, 1);   // đầu tháng
-const end = new Date(year, month, 1);         // đầu tháng sau
+    const start = new Date(year, month - 1, 1); // đầu tháng
+    const end = new Date(year, month, 1); // đầu tháng sau
 
-const study = await Study.findOne({
-  internId,
-  monthAndYear: { $gte: start, $lt: end }
-});
+    const study = await Study.findOne({
+      internId,
+      monthAndYear: { $gte: start, $lt: end },
+    });
 
     // const study = await Study.findOne({
     //   internId,

@@ -41,7 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       learningProcess,
       characteristic,
       comment,
-      monthAndYear
+      monthAndYear,
     } = req.body;
 
     if (!_id) {
@@ -75,6 +75,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         comment,
         monthAndYear,
         teacher: req?.body?.teacher,
+        isPublic: req?.body?.isPublic,
       },
       { new: true }
     );
