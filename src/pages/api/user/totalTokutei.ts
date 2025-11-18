@@ -89,7 +89,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       pass2023: pass2023.length > 0 ? pass2023[0].count : 0,
       pass2024: pass2024.length > 0 ? pass2024[0].count : 0,
       pass2025: pass2025.length > 0 ? pass2025[0].count : 0,
-      waitSkill: waitSkill,
+      waitSkill,
     });
 
   } catch (error) {

@@ -125,7 +125,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({
       pass1Year2024: pass1Year2024.length > 0 ? pass1Year2024[0].count : 0,
       pass1Year2025: pass1Year2025.length > 0 ? pass1Year2025[0].count : 0,
-      wait1Year: wait1Year,
+      wait1Year,
       study1YearTV: study1YearTV.length > 0 ? study1YearTV[0].count : 0,
       study1YearCT: study1YearCT.length > 0 ? study1YearCT[0].count : 0,
       study1YearTraminco: study1YearTraminco.length > 0 ? study1YearTraminco[0].count : 0,
