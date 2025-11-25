@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 // utils
 import cors from 'src/utils/cors';
 import db from 'src/utils/db';
-// _mock
+// models
 import Study from 'src/models/study';
 
 // ----------------------------------------------------------------------
@@ -14,31 +14,47 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const { internId, month, year } = req.body;
 
-    if (!internId || !year) {
+    if (!internId || !month || !year) {
       return res.status(400).json({ message: 'Missing internId, month, or year' });
     }
 
-    const start = new Date(year, month - 1, 1); // đầu tháng
-    const end = new Date(year, month, 1); // đầu tháng sau
-
     const study = await Study.findOne({
       internId,
-      monthAndYear: { $gte: start, $lt: end },
+      $expr: {
+        $and: [
+          {
+            $eq: [
+              {
+                $month: {
+                  date: '$monthAndYear',
+                  timezone: 'Asia/Ho_Chi_Minh',
+                },
+              },
+              month,
+            ],
+          },
+          {
+            $eq: [
+              {
+                $year: {
+                  date: '$monthAndYear',
+                  timezone: 'Asia/Ho_Chi_Minh',
+                },
+              },
+              year,
+            ],
+          },
+        ],
+      },
     });
-
-    // const study = await Study.findOne({
-    //   internId,
-    //   $expr: {
-    //     $and: [
-    //       { $eq: [{ $month: "$monthAndYear" }, month] },
-    //       { $eq: [{ $year: "$monthAndYear" }, year] }
-    //     ]
-    //   }
-    // });
 
     if (!study) {
       return res.status(200).json(null);
     }
+
+    console.log(month, year);
+        console.log(study.monthAndYear);
+
 
     return res.status(200).json({ study });
   } catch (error) {
