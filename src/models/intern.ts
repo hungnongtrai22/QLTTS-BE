@@ -45,11 +45,11 @@ const internSchema = new mongoose.Schema(
       // required: true,
     },
     leftEye: {
-      type: Number,
+      type: String,
       // required: true,
     },
     rightEye: {
-      type: Number,
+      type: String,
       // required: true,
     },
     hand: {
