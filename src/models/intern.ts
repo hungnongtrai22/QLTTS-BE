@@ -130,6 +130,9 @@ const internSchema = new mongoose.Schema(
           type: String,
           // required: true,
         },
+        address: {
+          type: String,
+        },
       },
     ],
     family: [
@@ -226,10 +229,10 @@ const internSchema = new mongoose.Schema(
     startDate: {
       type: Date,
     },
-    departureDate:{
+    departureDate: {
       type: Date,
     },
-    returnDate:{
+    returnDate: {
       type: Date,
     },
     type: {
@@ -285,7 +288,7 @@ const internSchema = new mongoose.Schema(
     contractDate: {
       type: Date,
     },
-   
+
     contractPeriod: {
       type: String,
     },
@@ -303,6 +306,135 @@ const internSchema = new mongoose.Schema(
       ref: 'order',
     },
     description: {
+      type: String,
+    },
+    birthPlace: {
+      type: String,
+    },
+    phoneNumber: {
+      type: String,
+    },
+    email: {
+      type: String,
+    },
+    children: {
+      type: String,
+    },
+    respiratoryDisease: {
+      type: Boolean,
+    },
+    obstetrics: {
+      type: Boolean,
+    },
+    highBloodPressure: {
+      type: Boolean,
+    },
+    ophthalmological: {
+      type: Boolean,
+    },
+    urinaryDiseases: {
+      type: Boolean,
+    },
+    anemia: {
+      type: Boolean,
+    },
+    otorhinolaryngological: {
+      type: Boolean,
+    },
+    cranialNerves: {
+      type: Boolean,
+    },
+    headache: {
+      type: Boolean,
+    },
+    pharyngealSystemDisease: {
+      type: Boolean,
+    },
+    hernia: {
+      type: Boolean,
+    },
+    anyAllergies: {
+      type: Boolean,
+    },
+    cardiovascularDisease: {
+      type: Boolean,
+    },
+    rheumatism: {
+      type: Boolean,
+    },
+    irregalerMenstruation: {
+      type: Boolean,
+    },
+    heartDisease: {
+      type: Boolean,
+    },
+    fainting: {
+      type: Boolean,
+    },
+    tbTest: {
+      type: Boolean,
+    },
+    dental: {
+      type: Boolean,
+    },
+    diabetes: {
+      type: Boolean,
+    },
+    history: {
+      type: Boolean,
+    },
+    digestive: {
+      type: Boolean,
+    },
+    asthma: {
+      type: Boolean,
+    },
+    otherMajor: {
+      type: Boolean,
+    },
+    psychosomatic: {
+      type: Boolean,
+    },
+    vnsomnia: {
+      type: Boolean,
+    },
+    surgery: {
+      type: Boolean,
+    },
+    hematology: {
+      type: Boolean,
+    },
+    lowerBack: {
+      type: Boolean,
+    },
+    hospitalization: {
+      type: Boolean,
+    },
+    others: {
+      type: String,
+    },
+    moneyMonthFrom: {
+      type: String,
+    },
+    moneyMonthTo: {
+      type: String,
+    },
+    money3YearsFrom: {
+      type: String,
+    },
+    money3YearsTo: {
+      type: String,
+    },
+    religion: {
+      type: String,
+    },
+    planMarried: {
+      type: String,
+    },
+    crime: {
+      type: Boolean,
+    },
+    fillInfo: {
       type: String,
     },
   },

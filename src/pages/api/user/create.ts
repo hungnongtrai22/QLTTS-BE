@@ -1,4 +1,3 @@
-
 import { NextApiRequest, NextApiResponse } from 'next';
 // utils
 import cors from 'src/utils/cors';
@@ -82,8 +81,52 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       money,
       familyInJapan,
       moveForeign,
-    }).save();
+      birthPlace: req?.body?.birthPlace,
+      phoneNumber: req?.body?.phoneNumber,
+      email: req?.body?.email,
+      children: req?.body?.children,
 
+      respiratoryDisease: req?.body?.respiratoryDisease,
+      obstetrics: req?.body?.obstetrics,
+      highBloodPressure: req?.body?.highBloodPressure,
+      ophthalmological: req?.body?.ophthalmological,
+      urinaryDiseases: req?.body?.urinaryDiseases,
+      anemia: req?.body?.anemia,
+      otorhinolaryngological: req?.body?.otorhinolaryngological,
+      cranialNerves: req?.body?.cranialNerves,
+      headache: req?.body?.headache,
+      pharyngealSystemDisease: req?.body?.pharyngealSystemDisease,
+      hernia: req?.body?.hernia,
+      anyAllergies: req?.body?.anyAllergies,
+      cardiovascularDisease: req?.body?.cardiovascularDisease,
+      rheumatism: req?.body?.rheumatism,
+      irregalerMenstruation: req?.body?.irregalerMenstruation,
+      heartDisease: req?.body?.heartDisease,
+      fainting: req?.body?.fainting,
+      tbTest: req?.body?.tbTest,
+      dental: req?.body?.dental,
+      diabetes: req?.body?.diabetes,
+      history: req?.body?.history,
+      digestive: req?.body?.digestive,
+      asthma: req?.body?.asthma,
+      otherMajor: req?.body?.otherMajor,
+      psychosomatic: req?.body?.psychosomatic,
+      vnsomnia: req?.body?.vnsomnia,
+      surgery: req?.body?.surgery,
+      hematology: req?.body?.hematology,
+      lowerBack: req?.body?.lowerBack,
+      hospitalization: req?.body?.hospitalization,
+
+      others: req?.body?.others,
+      moneyMonthFrom: req?.body?.moneyMonthFrom,
+      moneyMonthTo: req?.body?.moneyMonthTo,
+      money3YearsFrom: req?.body?.money3YearsFrom,
+      money3YearsTo: req?.body?.money3YearsTo,
+      religion: req?.body?.religion,
+      planMarried: req?.body?.planMarried,
+      crime: req?.body?.crime,
+      fillInfo: req?.body?.fillInfo,
+    }).save();
 
     return res.status(200).json({
       intern: newIntern,
