@@ -434,6 +434,9 @@ const internSchema = new mongoose.Schema(
     crime: {
       type: Boolean,
     },
+    crimeDetail: {
+      type: String,
+    },
     fillInfo: {
       type: String,
     },

@@ -125,6 +125,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       religion: req?.body?.religion,
       planMarried: req?.body?.planMarried,
       crime: req?.body?.crime,
+      crimeDetail: req?.body?.crimeDetail,
+
       fillInfo: req?.body?.fillInfo,
     }).save();
 
