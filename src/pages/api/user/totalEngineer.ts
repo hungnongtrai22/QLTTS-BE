@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await cors(req, res);
     await db.connectDB();
 
-    const [passKS2025, waitKS, studyKS] = await Promise.all([
+    const [passKS2025, passKS2026, waitKS, studyKS] = await Promise.all([
       // 1. PASS – departureDate năm 2023 – type skill
       Intern.aggregate([
         {
@@ -30,6 +30,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
         },
         { $match: { year: 2025 } },
+        { $count: 'count' },
+      ]),
+
+      // 1. PASS – departureDate năm 2023 – type skill
+      Intern.aggregate([
+        {
+          $match: {
+            // status: 'pass',
+            // job: 'ビルクリーニング',
+            type: 'engineer',
+            departureDate: { $exists: true, $ne: null },
+          },
+        },
+        {
+          $project: {
+            year: {
+              $year: {
+                date: '$departureDate',
+                timezone: 'Asia/Ho_Chi_Minh',
+              },
+            },
+          },
+        },
+        { $match: { year: 2026 } },
         { $count: 'count' },
       ]),
 
@@ -60,6 +84,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.status(200).json({
       passKS2025: passKS2025.length > 0 ? passKS2025[0].count : 0,
+      passKS2026: passKS2026.length > 0 ? passKS2026[0].count : 0,
       waitKS: waitKS.length > 0 ? waitKS[0].count : 0,
       studyKS: studyKS.length > 0 ? studyKS[0].count : 0,
     });

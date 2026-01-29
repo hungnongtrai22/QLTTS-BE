@@ -15,6 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       pass3Year2023,
       pass3Year2024,
       pass3Year2025,
+      pass3Year2026,
       wait3Year,
       studyDN,
       studyTV,
@@ -120,6 +121,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         { $count: 'count' },
       ]),
 
+      Intern.aggregate([
+        {
+          $match: {
+            // status: 'pass',
+            type: 'intern',
+            departureDate: { $exists: true, $ne: null },
+          },
+        },
+        {
+          $project: {
+            year: {
+              $year: {
+                date: '$departureDate',
+                timezone: 'Asia/Ho_Chi_Minh',
+              },
+            },
+          },
+        },
+        { $match: { year: 2026 } },
+        { $count: 'count' },
+      ]),
+
       Intern.countDocuments({ status: 'wait', type: 'intern' }),
 
       Intern.countDocuments({
@@ -199,6 +222,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       pass3Year2023: pass3Year2023.length > 0 ? pass3Year2023[0].count : 0,
       pass3Year2024: pass3Year2024.length > 0 ? pass3Year2024[0].count : 0,
       pass3Year2025: pass3Year2025.length > 0 ? pass3Year2025[0].count : 0,
+      pass3Year2026: pass3Year2026.length > 0 ? pass3Year2026[0].count : 0,
       wait3Year,
       studyDN,
       studyTV,

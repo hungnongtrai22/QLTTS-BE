@@ -8,14 +8,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await cors(req, res);
     await db.connectDB();
 
-    const [pass2023, pass2024, pass2025, waitSkill] = await Promise.all([
+    const [pass2023, pass2024, pass2025, pass2026, waitSkill] = await Promise.all([
       // 1. PASS – departureDate năm 2023 – type skill
       Intern.aggregate([
         {
           $match: {
             // status: 'pass',
             type: 'skill',
-            departureDate: { $exists: true, $ne: null }
+            departureDate: { $exists: true, $ne: null },
           },
         },
         {
@@ -38,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           $match: {
             // status: 'pass',
             type: 'skill',
-            departureDate: { $exists: true, $ne: null }
+            departureDate: { $exists: true, $ne: null },
           },
         },
         {
@@ -61,7 +61,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           $match: {
             // status: 'pass',
             type: 'skill',
-            departureDate: { $exists: true, $ne: null }
+            departureDate: { $exists: true, $ne: null },
           },
         },
         {
@@ -78,6 +78,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         { $count: 'count' },
       ]),
 
+      // 3. PASS – departureDate năm 2025 – type skill
+      Intern.aggregate([
+        {
+          $match: {
+            // status: 'pass',
+            type: 'skill',
+            departureDate: { $exists: true, $ne: null },
+          },
+        },
+        {
+          $project: {
+            year: {
+              $year: {
+                date: '$departureDate',
+                timezone: 'Asia/Ho_Chi_Minh',
+              },
+            },
+          },
+        },
+        { $match: { year: 2026 } },
+        { $count: 'count' },
+      ]),
+
       // 4. WAIT – type skill
       Intern.countDocuments({
         status: 'wait',
@@ -89,9 +112,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       pass2023: pass2023.length > 0 ? pass2023[0].count : 0,
       pass2024: pass2024.length > 0 ? pass2024[0].count : 0,
       pass2025: pass2025.length > 0 ? pass2025[0].count : 0,
+      pass2026: pass2026.length > 0 ? pass2026[0].count : 0,
       waitSkill,
     });
-
   } catch (error) {
     console.error('[API Error]: ', error);
     return res.status(500).json({ message: 'Server error', error });
