@@ -34,6 +34,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       otherLivingConditions,
       listWorker,
       listIntern,
+      listInternPass,
+      tradeUnion,
+      companySelect
     } = req.body;
     const newOrder = await new Order({
       name,
@@ -58,6 +61,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       otherLivingConditions,
       listWorker,
       listIntern,
+      listInternPass,
+      tradeUnion,
+      companySelect
     }).save();
 
     return res.status(200).json({

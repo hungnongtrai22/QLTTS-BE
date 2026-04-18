@@ -93,6 +93,20 @@ const orderSchema = new mongoose.Schema(
         ref: 'Intern',
       },
     ],
+    listInternPass: [
+      {
+        type: ObjectId,
+        ref: 'Intern',
+      },
+    ],
+    tradeUnion: {
+      type: ObjectId,
+      ref: 'TradeUnion',
+    },
+    companySelect: {
+      type: ObjectId,
+      ref: 'company',
+    },
   },
   {
     timestamps: true,

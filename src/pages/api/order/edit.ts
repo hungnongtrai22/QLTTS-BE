@@ -33,6 +33,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       study,
       applicationConditions,
       insurance,
+      listInternPass,
+      tradeUnion,
+      companySelect,
     } = req.body;
 
     if (!_id) {
@@ -62,6 +65,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         housingConditions: req?.body?.housingConditions,
         livingConditions: req?.body?.livingConditions,
         otherLivingConditions: req?.body?.otherLivingConditions,
+        listInternPass,
+        tradeUnion,
+        companySelect,
       },
       { new: true }
     );
