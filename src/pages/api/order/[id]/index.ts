@@ -5,6 +5,8 @@ import cors from 'src/utils/cors';
 import 'src/models/intern'; // đảm bảo model Intern được đăng ký trước
 import Order from 'src/models/order';
 import db from 'src/utils/db';
+import TradeUnion from 'src/models/tradeUnion';
+import Company from 'src/models/company';
 
 // ----------------------------------------------------------------------
 
@@ -13,8 +15,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await cors(req, res);
     await db.connectDB();
 
-
-    const order = await Order.findById(req.query.id).populate('listIntern'); 
+    const order = await Order.findById(req.query.id)
+      .populate('listIntern')
+      .populate({ path: 'tradeUnion', model: TradeUnion })
+      .populate({ path: 'companySelect', model: Company });
     res.status(200).json({
       order,
     });
