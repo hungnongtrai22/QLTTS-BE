@@ -37,6 +37,12 @@ const accountSchema = new mongoose.Schema(
       type: ObjectId,
       ref: 'source',
     },
+    internsDemo: [
+      {
+        type: ObjectId,
+        ref: 'Intern',
+      },
+    ],
   },
   {
     timestamps: true,

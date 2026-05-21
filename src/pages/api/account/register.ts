@@ -44,6 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       tradeUnion: req?.body?.tradeUnion,
       companySelect: req?.body?.companySelect,
       source: req?.body?.source,
+      internsDemo: req?.body?.internsDemo
     });
 
     // console.log("newUser", newUser, req?.body?.companySelect);
