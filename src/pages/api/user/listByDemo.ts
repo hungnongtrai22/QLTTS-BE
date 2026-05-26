@@ -1,0 +1,83 @@
+/* eslint-disable no-plusplus */
+
+import { NextApiRequest, NextApiResponse } from 'next';
+
+// utils
+import cors from 'src/utils/cors';
+
+import Intern from 'src/models/intern';
+import db from 'src/utils/db';
+
+import TradeUnion from 'src/models/tradeUnion';
+import Company from 'src/models/company';
+import Source from 'src/models/source';
+
+// Hàm tính tuổi từ ngày sinh
+function calculateAge(birthday: Date): number {
+  if (!birthday) return 0;
+
+  const today = new Date();
+
+  let age = today.getFullYear() - birthday.getFullYear();
+
+  const m = today.getMonth() - birthday.getMonth();
+
+  if (m < 0 || (m === 0 && today.getDate() < birthday.getDate())) {
+    age--;
+  }
+
+  return age;
+}
+
+// ----------------------------------------------------------------------
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  try {
+    await cors(req, res);
+    await db.connectDB();
+
+    
+    const { internsDemo } = req.body;
+
+    if (!Array.isArray(internsDemo)) {
+      return res.status(400).json({
+        message: 'internsDemo must be an array',
+      });
+    }
+
+    const interns = await Intern.find({
+      _id: { $in: internsDemo },
+    })
+      .populate({
+        path: 'tradeUnion',
+        model: TradeUnion,
+      })
+      .populate({
+        path: 'companySelect',
+        model: Company,
+      })
+      .populate({
+        path: 'source',
+        model: Source,
+      })
+      .lean();
+
+    const internsWithAge = interns.map((intern) => ({
+      ...intern,
+      age: calculateAge(intern.birthday as Date),
+    }));
+
+    return res.status(200).json({
+      interns: internsWithAge,
+    });
+  } catch (error) {
+    console.error('[Intern API]: ', error);
+
+    return res.status(400).json({
+      message: error instanceof Error ? error.message : error,
+    });
+  }
+}
