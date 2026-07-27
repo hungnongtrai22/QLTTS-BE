@@ -22,20 +22,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           month: {
             $switch: {
               branches: [
+                // Ưu tiên 1: Chỉ cần có departureDate (khác null) thì dùng ngày này
+                {
+                  case: { $ne: [{ $ifNull: ['$departureDate', null] }, null] },
+                  then: {
+                    $dateToParts: {
+                      date: "$departureDate",
+                      timezone: "Asia/Ho_Chi_Minh"
+                    }
+                  }
+                },
+                // Ưu tiên 2: Trạng thái study
                 {
                   case: { $eq: ['$status', 'study'] },
                   then: {
                     $dateToParts: {
                       date: "$studyDate",
-                      timezone: "Asia/Ho_Chi_Minh"
-                    }
-                  }
-                },
-                {
-                  case: { $in: ['$status', ['pass', 'complete', 'soon']] },
-                  then: {
-                    $dateToParts: {
-                      date: "$departureDate",
                       timezone: "Asia/Ho_Chi_Minh"
                     }
                   }
@@ -54,6 +56,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           normalizedStatus: {
             $switch: {
               branches: [
+                // UPDATE: Cứ có departureDate là gán luôn thành 'pass'
+                { case: { $ne: [{ $ifNull: ['$departureDate', null] }, null] }, then: 'pass' },
+                // Các case bên dưới sẽ xử lý khi KHÔNG CÓ departureDate
                 { case: { $eq: ['$status', 'study'] }, then: 'study' },
                 { case: { $eq: ['$status', 'pass'] }, then: 'pass' },
                 { case: { $in: ['$status', ['complete', 'soon']] }, then: 'completeOrSoon' }
