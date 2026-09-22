@@ -40,7 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // tính lại tuổi từ birthday
-    if (intern._id != '6a3b83983e08229a2948e8ab') {
+    if (intern._id !== '6a3b83983e08229a2948e8ab') {
       intern.age = calculateAge(intern.birthday);
     }
 
