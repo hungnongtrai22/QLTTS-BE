@@ -446,6 +446,32 @@ const internSchema = new mongoose.Schema(
   }
 );
 
+// ----------------------------------------------------------------------
+// Index. Đây chỉ là cấu trúc tra cứu — KHÔNG thay đổi document nào.
+// Trước khi thêm, toàn bộ collection chỉ có index _id mặc định, nên mọi truy vấn
+// lọc/sắp xếp đều phải quét hết collection.
+
+// sắp xếp mặc định của bảng danh sách
+internSchema.index({ createdAt: -1 });
+// tab trạng thái + sắp xếp; cũng phục vụ đếm theo status
+internSchema.index({ status: 1, createdAt: -1 });
+// lọc theo nghiệp đoàn, listByTradeUnion
+internSchema.index({ tradeUnion: 1 });
+// lọc theo nguồn tuyển, listBySource
+internSchema.index({ source: 1 });
+// lọc theo xí nghiệp, listByTradeUnionAndCompany
+internSchema.index({ companySelect: 1 });
+// lọc theo chương trình
+internSchema.index({ type: 1 });
+// lọc theo năm xuất cảnh (khoảng ngày)
+internSchema.index({ departureDate: 1 });
+// sắp xếp theo tên
+internSchema.index({ name: 1 });
+// sắp xếp theo tuổi (age ánh xạ sang birthday)
+internSchema.index({ birthday: 1 });
+// lấy thực tập sinh theo đơn hàng
+internSchema.index({ orderId: 1 });
+
 const Intern = mongoose.models.Intern || mongoose.model('Intern', internSchema);
 
 export default Intern;

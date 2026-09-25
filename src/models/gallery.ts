@@ -33,6 +33,14 @@ const gallerySchema = new mongoose.Schema(
   }
 );
 
+// ----------------------------------------------------------------------
+// Index. Đây chỉ là cấu trúc tra cứu — KHÔNG thay đổi document nào.
+// Trước khi thêm, toàn bộ collection chỉ có index _id mặc định, nên mọi truy vấn
+// lọc/sắp xếp đều phải quét hết collection.
+
+// album ảnh của thực tập sinh
+gallerySchema.index({ internId: 1 });
+
 const Gallery = mongoose.models.Gallery || mongoose.model('Gallery', gallerySchema);
 
 export default Gallery;

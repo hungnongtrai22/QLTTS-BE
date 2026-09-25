@@ -61,6 +61,16 @@ const attendanceSchema = new mongoose.Schema(
   }
 );
 
+// ----------------------------------------------------------------------
+// Index. Đây chỉ là cấu trúc tra cứu — KHÔNG thay đổi document nào.
+// Trước khi thêm, toàn bộ collection chỉ có index _id mặc định, nên mọi truy vấn
+// lọc/sắp xếp đều phải quét hết collection.
+
+// điểm danh theo thực tập sinh
+attendanceSchema.index({ internId: 1 });
+// thống kê điểm danh theo tháng
+attendanceSchema.index({ internId: 1, month: 1, year: 1 });
+
 const Attendance = mongoose.models.Attendance || mongoose.model('Attendance', attendanceSchema);
 
 export default Attendance;

@@ -107,6 +107,14 @@ const studySchema = new mongoose.Schema(
   }
 );
 
+// ----------------------------------------------------------------------
+// Index. Đây chỉ là cấu trúc tra cứu — KHÔNG thay đổi document nào.
+// Trước khi thêm, toàn bộ collection chỉ có index _id mặc định, nên mọi truy vấn
+// lọc/sắp xếp đều phải quét hết collection.
+
+// trang hồ sơ TTS và removeStudyByInternId (1188 document)
+studySchema.index({ internId: 1 });
+
 const Study = mongoose.models.Study || mongoose.model('Study', studySchema);
 
 export default Study;
