@@ -4,10 +4,11 @@ import cors from 'src/utils/cors';
 import db from 'src/utils/db';
 // _mock
 import Intern from 'src/models/intern';
+import { withAuth } from 'src/utils/auth';
 
 // ----------------------------------------------------------------------
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
 
@@ -39,3 +40,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
+
+export default withAuth(handler, { roles: ['admin'] });

@@ -11,6 +11,7 @@ import cors from 'src/utils/cors';
 import Intern from 'src/models/intern';
 import TradeUnion from 'src/models/tradeUnion';
 import Company from 'src/models/company';
+import { withAuth } from 'src/utils/auth';
 import db from '../../../utils/db';
 
 interface CustomNextApiRequest extends NextApiRequest {
@@ -225,4 +226,6 @@ const removeTmp = (path: string) => {
   });
 };
 
-export default router.handler();
+const routeHandler = router.handler();
+
+export default withAuth(routeHandler, { roles: ['admin'] });

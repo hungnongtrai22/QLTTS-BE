@@ -3,6 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import cors from 'src/utils/cors';
 // _mock
 import { getData, saveData, _contacts } from 'src/_mock/_chat';
+import { withAuth } from 'src/utils/auth';
 
 // ----------------------------------------------------------------------
 
@@ -121,7 +122,7 @@ function updateConversation(req: NextApiRequest, res: NextApiResponse) {
 
 // ----------------------------------------------------------------------
 
-export default async function allHandler(req: NextApiRequest, res: NextApiResponse) {
+async function allHandler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
 
@@ -152,3 +153,5 @@ export default async function allHandler(req: NextApiRequest, res: NextApiRespon
     });
   }
 }
+
+export default withAuth(allHandler);

@@ -5,6 +5,7 @@ import fileUpload, { UploadedFile } from 'express-fileupload';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { NextHandler } from 'next-connect';
 import cors from 'src/utils/cors';
+import { withAuth } from 'src/utils/auth';
 
 // Tạo interface mở rộng để có `files`
 interface CustomNextApiRequest extends NextApiRequest {
@@ -88,4 +89,6 @@ const removeTmp = (path: string) => {
   });
 };
 
-export default router.handler();
+const routeHandler = router.handler();
+
+export default withAuth(routeHandler);

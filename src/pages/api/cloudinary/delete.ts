@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { v2 as cloudinary } from 'cloudinary';
 import cors from 'src/utils/cors';
+import { withAuth } from 'src/utils/auth';
 
 cloudinary.config({
   cloud_name: 'dj4gvts4q',
@@ -8,7 +9,7 @@ cloudinary.config({
   api_secret: 'LSq_5jOOP96udG0PrRjFkFzGD7k',
 });
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   await cors(req, res);
 
   if (req.method !== 'POST') {
@@ -29,3 +30,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   
 }
+
+export default withAuth(handler);

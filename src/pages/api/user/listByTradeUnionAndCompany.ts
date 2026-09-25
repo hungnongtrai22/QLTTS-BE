@@ -6,6 +6,7 @@ import Intern from 'src/models/intern';
 import db from 'src/utils/db';
 import TradeUnion from 'src/models/tradeUnion';
 import Company from 'src/models/company';
+import { withAuth } from 'src/utils/auth';
 
 // Hàm tính tuổi từ ngày sinh
 function calculateAge(birthday: Date): number {
@@ -21,7 +22,7 @@ function calculateAge(birthday: Date): number {
 
 // ----------------------------------------------------------------------
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
     await db.connectDB();
@@ -65,3 +66,5 @@ if (companyList && !Array.isArray(companyList)) {
     });
   }
 }
+
+export default withAuth(handler);

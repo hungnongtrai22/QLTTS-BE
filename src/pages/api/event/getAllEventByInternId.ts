@@ -4,10 +4,11 @@ import cors from 'src/utils/cors';
 import db from 'src/utils/db';
 // _mock
 import Event from 'src/models/event';
+import { withAuth } from 'src/utils/auth';
 
 // ----------------------------------------------------------------------
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
     await db.connectDB();
@@ -39,3 +40,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ message: 'Internal server error' });
   }
 }
+
+export default withAuth(handler);

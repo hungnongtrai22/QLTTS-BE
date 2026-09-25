@@ -2,11 +2,12 @@ import { NextApiRequest, NextApiResponse } from 'next';
 // utils
 import cors from 'src/utils/cors';
 // _mock
+import { withAuth } from 'src/utils/auth';
 import db from '../../../utils/db';
 import Intern from '../../../models/intern';
 // ----------------------------------------------------------------------
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
 
@@ -50,3 +51,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
+
+export default withAuth(handler);

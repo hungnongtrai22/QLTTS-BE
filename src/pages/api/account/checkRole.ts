@@ -5,9 +5,10 @@ import Account from 'src/models/account';
 // utils
 import cors from 'src/utils/cors';
 import db from 'src/utils/db';
+import { withAuth } from 'src/utils/auth';
 
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
 
@@ -54,3 +55,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
+
+export default withAuth(handler, { roles: ['admin'] });

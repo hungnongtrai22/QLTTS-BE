@@ -3,8 +3,9 @@ import bcrypt from 'bcryptjs';
 import Account from 'src/models/account';
 import cors from 'src/utils/cors';
 import db from 'src/utils/db';
+import { withAuth } from 'src/utils/auth';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
 
@@ -45,3 +46,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ message: 'Internal server error' });
   }
 }
+
+export default withAuth(handler);

@@ -4,10 +4,11 @@ import cors from 'src/utils/cors';
 // _mock
 import Company from 'src/models/company';
 import db from 'src/utils/db';
+import { withAuth } from 'src/utils/auth';
 
 // ----------------------------------------------------------------------
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
     await db.connectDB();
@@ -24,3 +25,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
+
+export default withAuth(handler);

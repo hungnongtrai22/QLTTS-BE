@@ -7,6 +7,7 @@ import cors from 'src/utils/cors';
 import Gallery from 'src/models/gallery';
 import { v2 as cloudinary } from 'cloudinary';
 
+import { withAuth } from 'src/utils/auth';
 import db from '../../../utils/db';
 
 // cloudinary
@@ -17,7 +18,7 @@ cloudinary.config({
 });
 
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
 
@@ -64,3 +65,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ message: error });
   }
 }
+
+// Chưa siết về admin: form gọi endpoint này nằm trong trang hồ sơ TTS / nhật ký,
+// vốn không có RoleBasedGuard nên mọi role đăng nhập đều vào được.
+export default withAuth(handler);

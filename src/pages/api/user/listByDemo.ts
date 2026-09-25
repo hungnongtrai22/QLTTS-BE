@@ -11,6 +11,7 @@ import db from 'src/utils/db';
 import TradeUnion from 'src/models/tradeUnion';
 import Company from 'src/models/company';
 import Source from 'src/models/source';
+import { withAuth } from 'src/utils/auth';
 
 // Hàm tính tuổi từ ngày sinh
 function calculateAge(birthday: Date): number {
@@ -31,7 +32,7 @@ function calculateAge(birthday: Date): number {
 
 // ----------------------------------------------------------------------
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
@@ -81,3 +82,5 @@ export default async function handler(
     });
   }
 }
+
+export default withAuth(handler);

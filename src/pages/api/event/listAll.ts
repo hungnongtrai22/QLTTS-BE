@@ -4,6 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import cors from 'src/utils/cors';
 import Event from 'src/models/event';
 import db from 'src/utils/db';
+import { withAuth } from 'src/utils/auth';
 
 // Hàm tạo danh sách các ngày giữa start và end
 function getDatesBetween(start: Date, end: Date): { day: number; month: number; year: number }[] {
@@ -20,7 +21,7 @@ function getDatesBetween(start: Date, end: Date): { day: number; month: number; 
   return dates;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
     await db.connectDB();
@@ -68,3 +69,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 }
+
+export default withAuth(handler);

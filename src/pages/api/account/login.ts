@@ -5,8 +5,8 @@ import Account from 'src/models/account';
 // utils
 import cors from 'src/utils/cors';
 import db from 'src/utils/db';
+import { getJwtSecret, sendAuthError } from 'src/utils/auth';
 
-const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET || 'your_jwt_secret_key';
 const JWT_EXPIRES_IN = '7d';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -38,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ message: 'Invalid username or password.' });
     }
 
-    const accessToken = sign({ userId: user._id }, JWT_SECRET, {
+    const accessToken = sign({ userId: user._id }, getJwtSecret(), {
       expiresIn: JWT_EXPIRES_IN,
     });
 
@@ -56,6 +56,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
     });
   } catch (error) {
+    // Thiếu JWT_SECRET sẽ ném AuthError(500) — trả lời rõ ràng thay vì nuốt lỗi.
+    if (sendAuthError(error, res)) {
+      return undefined;
+    }
+
     console.error('[Login API Error]:', error);
     return res.status(500).json({
       message: 'Internal server error',

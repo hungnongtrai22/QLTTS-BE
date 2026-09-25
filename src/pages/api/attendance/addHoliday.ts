@@ -4,6 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import cors from 'src/utils/cors';
 import Attendance from 'src/models/attendance';
 import db from 'src/utils/db';
+import { withAuth } from 'src/utils/auth';
 
 const HOLIDAYS_2025 = [
   {
@@ -38,7 +39,7 @@ const HOLIDAYS_2025 = [
   },
 ];
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
     await db.connectDB();
@@ -113,3 +114,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ message: 'Lỗi hệ thống' });
   }
 }
+
+export default withAuth(handler);
