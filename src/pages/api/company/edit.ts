@@ -4,6 +4,7 @@ import cors from 'src/utils/cors';
 import Company from 'src/models/company';
 // _mock
 import { withAuth } from 'src/utils/auth';
+import { CompanyFieldError, pickCompanyContractFields } from 'src/utils/company-contract';
 import db from '../../../utils/db';
 // ----------------------------------------------------------------------
 
@@ -23,6 +24,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       return res.status(400).json({ message: 'Missing company ID (_id)' });
     }
 
+    // Người đại diện + khối lương dùng cho HĐLĐ: để trống thì $unset, không lưu ''.
+    const contract = pickCompanyContractFields(req.body || {});
+
     const updatedCompany= await Company.findByIdAndUpdate(
       _id,
       {
@@ -34,7 +38,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         country,
         phone,
         tradeUnion,
-        description
+        description,
+        ...contract.$set,
+        ...(Object.keys(contract.$unset).length ? { $unset: contract.$unset } : {}),
       },
       { new: true }
     );
@@ -47,6 +53,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       company: updatedCompany,
     });
   } catch (error) {
+    if (error instanceof CompanyFieldError) {
+      return res.status(400).json({ message: error.message });
+    }
     console.error('[Update Trade Union API]: ', error);
     return res.status(400).json({
       message: error,

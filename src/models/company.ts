@@ -40,6 +40,29 @@ const companySchema = new mongoose.Schema(
       type: String,
     },
 
+    // Người đại diện của xí nghiệp tiếp nhận — mục "Đại diện người sử dụng lao động" trên HĐLĐ.
+    director: {
+      type: String,
+    },
+
+    // Khối lương in trên HĐLĐ, đơn vị Yên. Lưu theo công ty (không theo từng TTS):
+    // mọi TTS của cùng một xí nghiệp dùng chung các mức này.
+    trainingAllowance: {
+      type: Number,
+    },
+    salary: {
+      type: Number,
+    },
+    tax: {
+      type: Number,
+    },
+    socialInsurance: {
+      type: Number,
+    },
+    housingFee: {
+      type: Number,
+    },
+
     tradeUnion: {
       type: ObjectId,
       required: true,

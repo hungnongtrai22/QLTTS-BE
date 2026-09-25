@@ -440,6 +440,18 @@ const internSchema = new mongoose.Schema(
     fillInfo: {
       type: String,
     },
+    // Người được báo tin khi có sự cố — in trên hợp đồng đưa đi làm việc (HĐLĐ).
+    // Tách riêng khỏi `family` vì `family` ghi quan hệ bằng tiếng Nhật (父/母) và
+    // không có số điện thoại, còn hợp đồng cần tiếng Việt kèm số liên lạc.
+    emergencyContactName: {
+      type: String,
+    },
+    emergencyContactRelationship: {
+      type: String,
+    },
+    emergencyContactPhone: {
+      type: String,
+    },
   },
   {
     timestamps: true,
