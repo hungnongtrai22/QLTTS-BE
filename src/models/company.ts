@@ -40,6 +40,12 @@ const companySchema = new mongoose.Schema(
       type: String,
     },
 
+    // Tên in lên hợp đồng tiếng Việt (HĐLĐ), vd "Công Ty Kabushikigaisha Zero" — `name`
+    // thường là tiếng Nhật. Trống thì hợp đồng in `name`.
+    contractName: {
+      type: String,
+    },
+
     // Người đại diện của xí nghiệp tiếp nhận — mục "Đại diện người sử dụng lao động" trên HĐLĐ.
     director: {
       type: String,

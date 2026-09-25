@@ -4,7 +4,7 @@ import cors from 'src/utils/cors';
 import Company from 'src/models/company';
 // _mock
 import { withAuth } from 'src/utils/auth';
-import { CompanyFieldError, pickCompanyContractFields } from 'src/utils/company-contract';
+import { CompanyFieldError, pickCompanyContractFields } from 'src/utils/contract-fields';
 import db from '../../../utils/db';
 // ----------------------------------------------------------------------
 

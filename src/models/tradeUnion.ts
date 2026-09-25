@@ -25,6 +25,10 @@ const tradeUnionSchema = new mongoose.Schema(
     phone: {
       type: String,
     },
+    // Tên in lên hợp đồng tiếng Việt (HĐLĐ). Trống thì hợp đồng in `name`.
+    contractName: {
+      type: String,
+    },
   },
   {
     timestamps: true,

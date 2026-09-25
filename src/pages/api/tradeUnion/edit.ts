@@ -4,6 +4,7 @@ import cors from 'src/utils/cors';
 import TradeUnion from 'src/models/tradeUnion';
 // _mock
 import { withAuth } from 'src/utils/auth';
+import { pickTradeUnionContractFields } from 'src/utils/contract-fields';
 import db from '../../../utils/db';
 // ----------------------------------------------------------------------
 
@@ -23,6 +24,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       return res.status(400).json({ message: 'Missing trade union ID (_id)' });
     }
 
+    // Tên trên hợp đồng: để trống thì $unset, không lưu ''.
+    const contract = pickTradeUnionContractFields(req.body || {});
+
     const updatedTradeUnion = await TradeUnion.findByIdAndUpdate(
       _id,
       {
@@ -33,6 +37,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         state,
         country,
         phone,
+        ...contract.$set,
+        ...(Object.keys(contract.$unset).length ? { $unset: contract.$unset } : {}),
       },
       { new: true }
     );

@@ -4,6 +4,7 @@ import cors from 'src/utils/cors';
 import TradeUnion from 'src/models/tradeUnion';
 // _mock
 import { withAuth } from 'src/utils/auth';
+import { pickTradeUnionContractFields } from 'src/utils/contract-fields';
 import db from '../../../utils/db';
 // ----------------------------------------------------------------------
 
@@ -14,6 +15,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     await db.connectDB();
 
     const { name } = req.body;
+    // Chỉ lấy phần $set: tài liệu mới chưa có gì để $unset.
+    const { $set: contractFields } = pickTradeUnionContractFields(req.body || {});
     const newTradeUnion = await new TradeUnion({
       name,
       email: req?.body?.email || "",
@@ -22,6 +25,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       state: req?.body?.state || "",
       country: req?.body?.country || "",
       phone: req?.body?.phone || "",
+      ...contractFields,
     }).save();
 
     return res.status(200).json({
