@@ -23,7 +23,15 @@ const connectDB = async (): Promise<void> => {
     await mongoose.disconnect();
   }
 
-  const db = await mongoose.connect(process.env.NEXT_PUBLIC_MONGODB_URL as string || process.env.MONGODB_URL as string);
+  // Không dùng NEXT_PUBLIC_MONGODB_URL: tiền tố NEXT_PUBLIC_ khiến Next.js nhúng biến
+  // vào bundle phía trình duyệt — chuỗi kết nối CSDL tuyệt đối không được nằm ở đó.
+  const uri = process.env.MONGODB_URL;
+
+  if (!uri) {
+    throw new Error('Server missing MONGODB_URL');
+  }
+
+  const db = await mongoose.connect(uri);
   console.log('New connection to the database.');
   connection.isConnected = db.connections[0].readyState;
 };
