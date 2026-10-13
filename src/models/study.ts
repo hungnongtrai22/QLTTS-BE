@@ -115,6 +115,10 @@ const studySchema = new mongoose.Schema(
 // trang hồ sơ TTS và removeStudyByInternId (1188 document)
 studySchema.index({ internId: 1 });
 
+// trang "Báo cáo học tập" — study/tracker lọc báo cáo theo khoảng tháng (monthAndYear
+// $gte/$lt). Không có index thì mỗi lần mở trang quét toàn bộ 1308 document để lấy ~110.
+studySchema.index({ monthAndYear: 1 });
+
 const Study = mongoose.models.Study || mongoose.model('Study', studySchema);
 
 export default Study;
