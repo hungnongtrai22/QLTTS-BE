@@ -50,4 +50,5 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-export default withAuth(handler);
+// Chỉ admin: trang Đơn hàng chỉ admin vào được (RoleBasedGuard + menu).
+export default withAuth(handler, { roles: ['admin'] });

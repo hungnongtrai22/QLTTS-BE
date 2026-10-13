@@ -27,9 +27,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const updatedOrder = await Order.findByIdAndUpdate(
       orderId,
       {
+        // Gỡ luôn khỏi danh sách đậu: người không còn là ứng viên thì không thể "đậu ngầm"
+        // đơn này (và nếu được thêm lại sau này cũng không tự hiện là đã đậu).
         $pull: {
-          listIntern: internId, // ✅ Vì đây là mảng ObjectId
-          // hoặc: listIntern: internId  // nếu là mảng các ID
+          listIntern: internId,
+          listInternPass: internId,
         },
       },
       { new: true }

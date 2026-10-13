@@ -23,9 +23,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       return res.status(400).json({ message: 'Missing internId' });
     }
 
+    // Gỡ khỏi cả danh sách ứng viên lẫn danh sách đậu của mọi đơn.
     const result = await Order.updateMany(
-      { listIntern: internId },
-      { $pull: { listIntern: internId } }
+      { $or: [{ listIntern: internId }, { listInternPass: internId }] },
+      { $pull: { listIntern: internId, listInternPass: internId } }
     );
 
     return res.status(200).json({
