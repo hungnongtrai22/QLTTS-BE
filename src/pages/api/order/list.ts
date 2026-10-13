@@ -6,6 +6,7 @@ import 'src/models/intern'; // đảm bảo model Intern được đăng ký tr�
 import Order from 'src/models/order';
 import db from 'src/utils/db';
 import { withAuth } from 'src/utils/auth';
+import { withListInternAges } from 'src/utils/age';
 
 // ----------------------------------------------------------------------
 
@@ -17,7 +18,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     const orders = await Order.find().populate('listIntern'); 
     return res.status(200).json({
-      orders,
+      orders: orders.map(withListInternAges),
     });
   } catch (error) {
     console.error('[Product API]: ', error);

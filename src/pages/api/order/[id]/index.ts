@@ -8,6 +8,7 @@ import db from 'src/utils/db';
 import TradeUnion from 'src/models/tradeUnion';
 import Company from 'src/models/company';
 import { withAuth } from 'src/utils/auth';
+import { withListInternAges } from 'src/utils/age';
 
 // ----------------------------------------------------------------------
 
@@ -21,7 +22,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       .populate({ path: 'tradeUnion', model: TradeUnion })
       .populate({ path: 'companySelect', model: Company });
     res.status(200).json({
-      order,
+      order: withListInternAges(order),
     });
   } catch (error) {
     console.error('[Order API]: ', error);

@@ -5,6 +5,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import cors from 'src/utils/cors';
 import db from 'src/utils/db';
 import { withAuth } from 'src/utils/auth';
+import { withAge } from 'src/utils/age';
 import { buildDiacriticInsensitiveRegex } from 'src/utils/search';
 // models
 import Intern from 'src/models/intern';
@@ -40,20 +41,6 @@ const LIST_FIELDS = [
   'source',
 ].join(' ');
 
-// Hàm tính tuổi
-function calculateAge(birthday: Date): number {
-  if (!birthday) return 0;
-  const today = new Date();
-  let age = today.getFullYear() - birthday.getFullYear();
-  const m = today.getMonth() - birthday.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birthday.getDate())) {
-    age--;
-  }
-  return age;
-}
-
-const withAge = (interns: any[]) =>
-  interns.map((intern) => ({ ...intern, age: calculateAge(intern.birthday as Date) }));
 
 /** Nhận "a,b,c" hoặc mảng, trả về mảng đã bỏ phần tử rỗng. */
 function toArray(value: unknown): string[] {
@@ -175,7 +162,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         .populate({ path: 'source', model: Source })
         .lean();
 
-      return res.status(200).json({ interns: withAge(interns) });
+      return res.status(200).json({ interns: interns.map(withAge) });
     }
 
     // --- Chế độ phân trang ---
@@ -222,7 +209,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     });
 
     return res.status(200).json({
-      interns: withAge(interns),
+      interns: interns.map(withAge),
       total,
       page,
       limit,

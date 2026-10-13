@@ -7,18 +7,7 @@ import db from 'src/utils/db';
 import TradeUnion from 'src/models/tradeUnion';
 import Company from 'src/models/company';
 import { withAuth } from 'src/utils/auth';
-
-// Hàm tính tuổi từ ngày sinh
-function calculateAge(birthday: Date): number {
-  if (!birthday) return 0;
-  const today = new Date();
-  let age = today.getFullYear() - birthday.getFullYear();
-  const m = today.getMonth() - birthday.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birthday.getDate())) {
-    age -= 1;
-  }
-  return age;
-}
+import { calculateAge } from 'src/utils/age';
 
 // ----------------------------------------------------------------------
 

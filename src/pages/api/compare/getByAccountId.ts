@@ -6,6 +6,7 @@ import 'src/models/intern'; // đảm bảo model Intern được đăng ký tr�
 import Compare from 'src/models/compare';
 import db from 'src/utils/db';
 import { withAuth } from 'src/utils/auth';
+import { withListInternAges } from 'src/utils/age';
 
 // ----------------------------------------------------------------------
 
@@ -18,7 +19,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     const compare = await Compare.findOne({ account: accountId }).populate('listIntern');
     return res.status(200).json({
-      compare,
+      compare: withListInternAges(compare),
     });
   } catch (error) {
     console.error('[Comapre API]: ', error);
