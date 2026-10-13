@@ -44,7 +44,7 @@ export class AuthError extends Error {
 const READ_ONLY = process.env.READ_ONLY === '1';
 
 const WRITE_PATTERN =
-  /\/(create|edit|delete|register|resetPassword|changePassword|importExcel|addHoliday|swapIntern|removeIntern|removeInternFromAll|removeInternPass|removeAttendByInternId|removeContactByInternId|removeStudyByInternId|deleteByTradeUnion|deleteAttendItem|deleteEventItem)|\/update[A-Za-z]*/i;
+  /\/(create|edit|delete|register|resetPassword|changePassword|importExcel|addHoliday|swapIntern|removeIntern|removeInternFromAll|removeInternPass|removeAttendByInternId|removeContactByInternId|removeStudyByInternId|deleteByTradeUnion|deleteAttendItem|deleteEventItem|cancelOrder)|\/update[A-Za-z]*/i;
 
 if (READ_ONLY) {
   console.warn('[READ_ONLY] Bật chế độ chỉ đọc — mọi endpoint ghi sẽ bị từ chối (403).');
