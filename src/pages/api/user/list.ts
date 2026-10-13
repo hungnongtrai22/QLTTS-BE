@@ -80,10 +80,17 @@ async function resolveIdsByName(model: any, names: string[]): Promise<string[]> 
   return docs.map((doc: any) => doc._id);
 }
 
+// TTS không có nguồn được coi là thuộc nguồn "Nhật Tân" — cùng quy ước với countSource
+// (trang tổng quan). Chưa có document Source nào tên này; nếu sau này tạo thật thì bộ lọc
+// gộp cả TTS của nguồn đó lẫn TTS chưa gán nguồn.
+const DEFAULT_SOURCE_NAME = 'Nhật Tân';
+
 async function buildQuery(req: NextApiRequest) {
   const { search, status, type } = req.query;
 
   const query: Record<string, any> = {};
+  // Điều kiện cần ghép AND với nhau (tìm kiếm đã dùng $or ở mức ngoài cùng).
+  const and: Record<string, any>[] = [];
 
   const searchRegex = buildDiacriticInsensitiveRegex(`${search || ''}`);
   if (searchRegex) {
@@ -110,23 +117,32 @@ async function buildQuery(req: NextApiRequest) {
   ]);
 
   if (tradeUnionNames.length > 0) query.tradeUnion = { $in: tradeUnionIds };
-  if (sourceNames.length > 0) query.source = { $in: sourceIds };
+  if (sourceNames.length > 0) {
+    if (sourceNames.includes(DEFAULT_SOURCE_NAME)) {
+      // { source: null } khớp cả TTS không có trường source lẫn source = null.
+      and.push({ $or: [{ source: { $in: sourceIds } }, { source: null }] });
+    } else {
+      query.source = { $in: sourceIds };
+    }
+  }
   if (companyNames.length > 0) query.companySelect = { $in: companyIds };
 
   // Lọc theo năm xuất cảnh: dùng khoảng ngày thay vì $expr/$year để còn dùng được index.
-  const years = toArray(req.query.year);
+  // Ranh giới năm theo giờ Việt Nam (+07:00): ngày lưu trong CSDL là nửa đêm giờ VN, nên
+  // 01/01 giờ VN là 31/12 17:00 UTC — tính theo UTC sẽ rơi nhầm sang năm trước.
+  const years = toArray(req.query.year).filter((year) => /^\d{4}$/.test(year));
   if (years.length > 0) {
-    query.$and = [
-      {
-        $or: years.map((year) => ({
-          departureDate: {
-            $gte: new Date(`${year}-01-01T00:00:00.000Z`),
-            $lt: new Date(`${Number(year) + 1}-01-01T00:00:00.000Z`),
-          },
-        })),
-      },
-    ];
+    and.push({
+      $or: years.map((year) => ({
+        departureDate: {
+          $gte: new Date(`${year}-01-01T00:00:00.000+07:00`),
+          $lt: new Date(`${Number(year) + 1}-01-01T00:00:00.000+07:00`),
+        },
+      })),
+    });
   }
+
+  if (and.length > 0) query.$and = and;
 
   return query;
 }
