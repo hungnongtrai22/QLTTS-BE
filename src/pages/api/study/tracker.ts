@@ -3,6 +3,7 @@ import Study from 'src/models/study';
 import Intern from 'src/models/intern';
 import Company from 'src/models/company';
 import TradeUnion from 'src/models/tradeUnion';
+import Source from 'src/models/source';
 import { withAuth } from 'src/utils/auth';
 import db from 'src/utils/db';
 
@@ -74,9 +75,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         { _id: { $in: Array.from(reportByIntern.keys()) } },
       ],
     })
-      .select('name namejp avatar status studyDate tradeUnion companySelect')
+      .select('name namejp avatar status studyDate tradeUnion companySelect source')
       .populate({ path: 'tradeUnion', model: TradeUnion, select: 'name' })
       .populate({ path: 'companySelect', model: Company, select: 'name' })
+      .populate({ path: 'source', model: Source, select: 'name' })
       .sort({ name: 1 })
       .lean();
 
@@ -112,6 +114,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         studyDate: intern.studyDate || null,
         tradeUnion: intern.tradeUnion?.name || '',
         company: intern.companySelect?.name || '',
+        // Rỗng = chưa có nguồn; FE hiển thị/lọc là "Nhật Tân" (DEFAULT_SOURCE_NAME).
+        source: intern.source?.name || '',
         report: report
           ? {
               _id: String(report._id),
