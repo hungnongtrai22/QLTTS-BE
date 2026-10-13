@@ -63,7 +63,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       characteristic,
       comment,
       monthAndYear,
-      tearcher: req?.body?.teacher,
+      // Trước đây gõ nhầm thành "tearcher" (không có trong schema) nên báo cáo tạo mới mất tên giáo viên.
+      teacher: req?.body?.teacher,
       isPublic: req?.body?.isPublic,
     }).save();
 
