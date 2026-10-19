@@ -5,13 +5,17 @@ import Intern from 'src/models/intern';
 import { withAuth } from 'src/utils/auth';
 import db from 'src/utils/db';
 import { byIntern, parseStudyMonth } from 'src/utils/studyMonth';
+import { STUDY_LOCKED_MESSAGE, isUnlockRequest } from 'src/utils/studyLock';
 
 // ----------------------------------------------------------------------
 // Lưu nhiều báo cáo học tập của một tháng một lần (trang "Nhập điểm hàng loạt", chỉ admin).
 //
 //   PUT { month: 'YYYY-MM', publish: boolean, reports: [{ internId, health … speak, level,
 //         kanji?, grammarAndReading?, listeningComprehension?, learningProcess,
-//         characteristic, teacher?, comment }] }
+//         characteristic, teacher?, comment, unlockPublished? }] }
+//
+// Báo cáo tháng đó đã công khai thì dòng phải kèm unlockPublished: true (đã "Mở khóa để sửa"),
+// nếu không bị từ chối riêng dòng đó — xem src/utils/studyLock.ts.
 //
 // Quy tắc (chủ dự án chọn "đủ mới lưu"): mỗi báo cáo phải đủ như form nhập điểm — 10 điểm,
 // trình độ, tiến độ, tính cách, nhận xét. Server kiểm tra lại toàn bộ, không tin trình duyệt.
@@ -157,7 +161,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         .select('_id')
         .lean(),
       Study.find({ internId: { $in: ids }, monthAndYear: { $gte: month.start, $lt: month.end } })
-        .select('_id internId updatedAt')
+        .select('_id internId isPublic updatedAt')
         .sort({ updatedAt: 1 })
         .lean(),
       Study.find({ internId: { $in: ids }, monthAndYear: { $lt: month.start } })
@@ -183,8 +187,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       const internId = ids[i];
       const checked = checkReport(input);
 
+      const locked = !!currentByIntern.get(internId)?.isPublic && !isUnlockRequest(input);
+
       if ('message' in checked) {
         results.push({ internId, ok: false, message: checked.message });
+      } else if (locked) {
+        // Báo cáo tháng này đã công khai mà dòng chưa được "Mở khóa để sửa" (xem studyLock).
+        results.push({ internId, ok: false, message: STUDY_LOCKED_MESSAGE, locked: true });
       } else if (!knownInterns.has(internId)) {
         results.push({ internId, ok: false, message: 'Không tìm thấy thực tập sinh' });
       } else {

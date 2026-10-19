@@ -5,6 +5,7 @@ import Study from 'src/models/study';
 
 // _mock
 import { withAuth } from 'src/utils/auth';
+import { STUDY_LOCKED_CODE, STUDY_LOCKED_MESSAGE, isUnlockRequest } from 'src/utils/studyLock';
 import db from '../../../utils/db';
 // ----------------------------------------------------------------------
 
@@ -18,6 +19,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     if (!id) {
       return res.status(400).json({ message: 'Missing study ID' });
+    }
+
+    // Báo cáo đã công khai bị khóa: chỉ xóa khi người dùng đã xác nhận mở khóa (xem studyLock).
+    const current: any = await Study.findById(id).select('isPublic').lean();
+    if (!current) {
+      return res.status(404).json({ message: 'Study not found' });
+    }
+    if (current.isPublic && !isUnlockRequest(req.body)) {
+      return res.status(409).json({ message: STUDY_LOCKED_MESSAGE, code: STUDY_LOCKED_CODE });
     }
 
     const deletedStudy = await Study.findByIdAndDelete(id);
