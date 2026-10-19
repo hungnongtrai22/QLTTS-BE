@@ -15,7 +15,8 @@ import { byIntern, findMonthInterns, internBasics, parseStudyMonth } from 'src/u
 //   - lastTeacher: giáo viên của báo cáo tháng này, hoặc gần nhất trước đó (dòng chưa nhập)
 // ----------------------------------------------------------------------
 
-const REPORT_FIELDS = 'internId total average level teacher isPublic monthAndYear updatedAt';
+// attend: điểm chuyên cần — FE đánh dấu "Cần chú ý" khi thấp.
+const REPORT_FIELDS = 'internId total average attend level teacher isPublic monthAndYear updatedAt';
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -77,6 +78,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
               _id: String(report._id),
               total: report.total ?? null,
               average: report.average ?? null,
+              attend: report.attend ?? null,
               level: report.level || '',
               teacher: String(report.teacher || '').trim(),
               isPublic: !!report.isPublic,
