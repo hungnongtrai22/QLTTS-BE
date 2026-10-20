@@ -16,6 +16,7 @@ import { computeTotal1Year } from './total1Year';
 import { computeTotalEngineer } from './totalEngineer';
 import { computeTotalTokuteiKS } from './totalTokuteiKS';
 import { computeTotalTokutei } from './totalTokutei';
+import { computeLessonProgress } from './lessonProgress';
 
 // ----------------------------------------------------------------------
 // Gộp toàn bộ số liệu của trang tổng quan vào MỘT lời gọi.
@@ -47,6 +48,7 @@ async function buildStats() {
     totalEngineer,
     totalTokuteiKS,
     totalTokutei,
+    lessonProgress,
   ] = await Promise.all([
     computeCount(),
     computeCountSource(),
@@ -60,6 +62,7 @@ async function buildStats() {
     computeTotalEngineer(),
     computeTotalTokuteiKS(),
     computeTotalTokutei(),
+    computeLessonProgress(),
   ]);
 
   return {
@@ -75,6 +78,7 @@ async function buildStats() {
     totalEngineer,
     totalTokuteiKS,
     totalTokutei,
+    lessonProgress,
   };
 }
 
