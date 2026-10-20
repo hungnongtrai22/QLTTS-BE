@@ -8,6 +8,7 @@ import Intern from 'src/models/intern';
 import Study from 'src/models/study';
 import Company from 'src/models/company';
 import TradeUnion from 'src/models/tradeUnion';
+import Source from 'src/models/source';
 
 // ----------------------------------------------------------------------
 // Tiến độ bài học (giáo trình 皆の日本語) của TTS đang học — cho trang tổng quan, nhóm theo
@@ -47,9 +48,10 @@ export async function computeLessonProgress() {
   // studyDate / startDate (ngày nhập học / ngày xuất cảnh dự kiến): giao diện ước tính tốc độ học
   // và số bài lúc bay.
   const interns: any[] = await Intern.find({ status: 'study' })
-    .select('name namejp avatar tradeUnion companySelect studyDate startDate')
+    .select('name namejp avatar tradeUnion companySelect source studyDate startDate')
     .populate({ path: 'tradeUnion', model: TradeUnion, select: 'name' })
     .populate({ path: 'companySelect', model: Company, select: 'name' })
+    .populate({ path: 'source', model: Source, select: 'name' })
     .lean();
 
   // Mọi báo cáo của các TTS này (index internId_1), mới nhất trước.
@@ -87,6 +89,8 @@ export async function computeLessonProgress() {
         avatar: intern.avatar || '',
         tradeUnion: intern.tradeUnion?.name || '',
         company: intern.companySelect?.name || '',
+        // Rỗng = chưa có nguồn; giao diện hiện là "Nhật Tân" (DEFAULT_SOURCE_NAME) như mọi nơi khác.
+        source: intern.source?.name || '',
         lesson,
         review,
         // Tháng của báo cáo mới nhất; null = chưa có báo cáo nào
