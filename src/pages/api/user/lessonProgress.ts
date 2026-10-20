@@ -44,8 +44,10 @@ export const parseLesson = (value: unknown): number | 'review' | null => {
 export async function computeLessonProgress() {
   await db.connectDB();
 
+  // studyDate / startDate (ngày nhập học / ngày xuất cảnh dự kiến): giao diện ước tính tốc độ học
+  // và số bài lúc bay.
   const interns: any[] = await Intern.find({ status: 'study' })
-    .select('name namejp avatar tradeUnion companySelect')
+    .select('name namejp avatar tradeUnion companySelect studyDate startDate')
     .populate({ path: 'tradeUnion', model: TradeUnion, select: 'name' })
     .populate({ path: 'companySelect', model: Company, select: 'name' })
     .lean();
@@ -72,10 +74,10 @@ export async function computeLessonProgress() {
       const latest = list[0];
 
       // Báo cáo mới nhất là "ôn tập" (hoặc không đọc được) thì lùi về báo cáo trước đó có số bài.
-      const numbered = list
-        .map((report) => parseLesson(report.learningProcess))
-        .find((parsed): parsed is number => typeof parsed === 'number');
-      const lesson = numbered ?? null;
+      const numbered = list.find(
+        (report) => typeof parseLesson(report.learningProcess) === 'number'
+      );
+      const lesson = numbered ? (parseLesson(numbered.learningProcess) as number) : null;
       const review = !!latest && parseLesson(latest.learningProcess) === 'review';
 
       return {
@@ -89,6 +91,10 @@ export async function computeLessonProgress() {
         review,
         // Tháng của báo cáo mới nhất; null = chưa có báo cáo nào
         month: latest?.monthAndYear ? monthKeyVN(latest.monthAndYear) : null,
+        // Tháng của báo cáo cho ra `lesson` (khác `month` khi báo cáo mới nhất là "ôn tập")
+        lessonMonth: numbered?.monthAndYear ? monthKeyVN(numbered.monthAndYear) : null,
+        studyDate: intern.studyDate || null,
+        startDate: intern.startDate || null,
       };
     }),
   };
