@@ -27,7 +27,7 @@ import Source from 'src/models/source';
 const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
 
 // "YYYY-MM" theo giờ VN (monthAndYear lưu 00:00 giờ VN = 17:00 UTC hôm trước).
-const monthKeyVN = (value: Date) => {
+export const monthKeyVN = (value: Date) => {
   const date = new Date(new Date(value).getTime() + VN_OFFSET_MS);
   return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
 };
