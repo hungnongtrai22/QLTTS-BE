@@ -9,20 +9,33 @@ import db from 'src/utils/db';
 import TradeUnion from 'src/models/tradeUnion';
 import Company from 'src/models/company';
 import Source from 'src/models/source';
-import { withAuth } from 'src/utils/auth';
+import { ALL_ROLES, sendAuthError, withAuth } from 'src/utils/auth';
 import { calculateAge } from 'src/utils/age';
+import {
+  accountOf,
+  assertInternAccess,
+  internSelectFor,
+  refSelectFor,
+} from 'src/utils/internScope';
 
 // ----------------------------------------------------------------------
+// Hồ sơ một TTS. Mọi role gọi được (trang hồ sơ không có RoleBasedGuard), nhưng chỉ TTS trong
+// phạm vi tài khoản; đối tác không nhận giấy tờ / liên lạc / hợp đồng — xem internScope.ts.
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
     await db.connectDB();
 
+    const account = accountOf(req);
+    await assertInternAccess(account, req.query.id);
+
+    const refSelect = refSelectFor(account);
     const intern: any = await Intern.findById(req.query.id)
-      .populate({ path: 'tradeUnion', model: TradeUnion })
-      .populate({ path: 'companySelect', model: Company })
-      .populate({ path: 'source', model: Source })
+      .select(internSelectFor(account))
+      .populate({ path: 'tradeUnion', model: TradeUnion, select: refSelect })
+      .populate({ path: 'companySelect', model: Company, select: refSelect })
+      .populate({ path: 'source', model: Source, select: refSelect })
       .lean(); // để object thuần, dễ chỉnh sửa
 
     if (!intern) {
@@ -36,6 +49,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       intern,
     });
   } catch (error) {
+    if (sendAuthError(error, res)) return undefined;
     console.error('[Intern API]: ', error);
     return res.status(400).json({
       message: error instanceof Error ? error.message : error,
@@ -43,4 +57,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-export default withAuth(handler);
+export default withAuth(handler, { roles: ALL_ROLES });

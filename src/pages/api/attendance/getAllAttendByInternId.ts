@@ -4,7 +4,8 @@ import cors from 'src/utils/cors';
 import db from 'src/utils/db';
 // _mock
 import Attendance from 'src/models/attendance';
-import { withAuth } from 'src/utils/auth';
+import { ALL_ROLES, sendAuthError, withAuth } from 'src/utils/auth';
+import { accountOf, assertInternAccess } from 'src/utils/internScope';
 
 // ----------------------------------------------------------------------
 
@@ -12,6 +13,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
     await db.connectDB();
+
+    // Chỉ TTS trong phạm vi tài khoản (xem src/utils/internScope.ts).
+    await assertInternAccess(accountOf(req), req.body.internId);
 
     const { internId } = req.body;
 
@@ -39,9 +43,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     return res.status(200).json({ attend: mergedAttend });
   } catch (error) {
+    if (sendAuthError(error, res)) return undefined;
     console.error('[Get Merged Attendance API]: ', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 }
 
-export default withAuth(handler);
+export default withAuth(handler, { roles: ALL_ROLES });

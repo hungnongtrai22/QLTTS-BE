@@ -1,7 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import cors from 'src/utils/cors';
 import Attendance from 'src/models/attendance';
-import { withAuth } from 'src/utils/auth';
+import { sendAuthError, withAuth } from 'src/utils/auth';
+import { accountOf, assertInternAccess } from 'src/utils/internScope';
 import db from '../../../utils/db';
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -13,6 +14,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     }
 
     await db.connectDB();
+
+    // Chỉ TTS trong phạm vi tài khoản (xem src/utils/internScope.ts).
+    await assertInternAccess(accountOf(req), req.body.internId);
 
     const { internId, itemId } = req.body;
 
@@ -32,6 +36,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     return res.status(200).json({ attendance: updatedAttendance });
   } catch (error) {
+    if (sendAuthError(error, res)) return undefined;
     console.error('[Delete Attend Item API]: ', error);
     return res.status(400).json({
       message: error instanceof Error ? error.message : 'Đã có lỗi xảy ra',
@@ -39,4 +44,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-export default withAuth(handler);
+export default withAuth(handler, { roles: ['admin', 'source'] });

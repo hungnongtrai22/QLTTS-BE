@@ -5,19 +5,28 @@ import cors from 'src/utils/cors';
 import 'src/models/intern'; // đảm bảo model Intern được đăng ký trước
 import Compare from 'src/models/compare';
 import db from 'src/utils/db';
-import { withAuth } from 'src/utils/auth';
+import { ALL_ROLES, withAuth } from 'src/utils/auth';
 import { withListInternAges } from 'src/utils/age';
+import { accountOf, internScope, internSelectFor, isAdmin } from 'src/utils/internScope';
 
 // ----------------------------------------------------------------------
+// Danh sách so sánh của một tài khoản. Đối tác luôn nhận danh sách của chính mình
+// (accountId gửi lên bị bỏ qua), chỉ gồm TTS còn trong phạm vi và không kèm giấy tờ / liên lạc.
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
     await db.connectDB();
 
-    const { accountId } = req.body;
+    const account = accountOf(req);
+    const admin = isAdmin(account);
+    const accountId = admin ? req.body.accountId || account._id : account._id;
 
-    const compare = await Compare.findOne({ account: accountId }).populate('listIntern');
+    const compare = await Compare.findOne({ account: accountId }).populate({
+      path: 'listIntern',
+      match: internScope(account) || {},
+      select: internSelectFor(account),
+    });
     return res.status(200).json({
       compare: withListInternAges(compare),
     });
@@ -29,4 +38,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-export default withAuth(handler);
+export default withAuth(handler, { roles: ALL_ROLES });

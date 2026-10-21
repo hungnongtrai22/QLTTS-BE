@@ -10,24 +10,31 @@ import TradeUnion from 'src/models/tradeUnion';
 import Company from 'src/models/company';
 import { withAuth } from 'src/utils/auth';
 import { calculateAge } from 'src/utils/age';
+import {
+  DONG_THAP_REGEX,
+  PARTNER_LIST_SELECT,
+  REF_NAME_SELECT,
+  accountOf,
+  isAdmin,
+} from 'src/utils/internScope';
 
 // ----------------------------------------------------------------------
+// TTS có địa chỉ ở Đồng Tháp. Tài khoản Đồng Tháp chỉ nhận các trường của bảng danh sách.
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
     await db.connectDB();
 
-    const keywordRegex = /đồng tháp|dong thap/i; // không phân biệt hoa thường
+    const admin = isAdmin(accountOf(req));
+    const refSelect = admin ? '' : REF_NAME_SELECT;
 
     const interns = await Intern.find({
-      $or: [
-        { address: { $regex: keywordRegex } },
-        { city: { $regex: keywordRegex } },
-      ],
+      $or: [{ address: { $regex: DONG_THAP_REGEX } }, { city: { $regex: DONG_THAP_REGEX } }],
     })
-      .populate({ path: 'tradeUnion', model: TradeUnion })
-      .populate({ path: 'companySelect', model: Company })
+      .select(admin ? '' : PARTNER_LIST_SELECT)
+      .populate({ path: 'tradeUnion', model: TradeUnion, select: refSelect })
+      .populate({ path: 'companySelect', model: Company, select: refSelect })
       .lean();
 
     const internsWithAge = interns.map((intern) => ({
@@ -42,4 +49,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-export default withAuth(handler);
+export default withAuth(handler, { roles: ['admin', 'dongthap'] });

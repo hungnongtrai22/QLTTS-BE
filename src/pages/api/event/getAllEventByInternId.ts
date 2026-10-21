@@ -4,7 +4,7 @@ import cors from 'src/utils/cors';
 import db from 'src/utils/db';
 // _mock
 import Event from 'src/models/event';
-import { withAuth } from 'src/utils/auth';
+import { ALL_ROLES, withAuth } from 'src/utils/auth';
 
 // ----------------------------------------------------------------------
 
@@ -12,9 +12,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
     await db.connectDB();
-
-
-   
 
     // Lấy tất cả bản ghi Attendance của internId, có thể sort theo thời gian nếu cần
     const eventRecords = await Event.find().sort({ year: 1, month: 1 });
@@ -41,4 +38,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-export default withAuth(handler);
+export default withAuth(handler, { roles: ALL_ROLES });

@@ -5,15 +5,17 @@ import cors from 'src/utils/cors';
 import Source from 'src/models/source';
 import db from 'src/utils/db';
 import { withAuth } from 'src/utils/auth';
+import { REF_NAME_SELECT, accountOf, isAdmin } from 'src/utils/internScope';
 
 // ----------------------------------------------------------------------
+// Danh sách nguồn. Demo chỉ dùng tên để đổ bộ lọc ở trang danh sách TTS.
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
     await db.connectDB();
 
-    const sources = await Source.find();
+    const sources = await Source.find().select(isAdmin(accountOf(req)) ? '' : REF_NAME_SELECT);
     return res.status(200).json({
       sources,
     });
@@ -25,4 +27,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-export default withAuth(handler);
+export default withAuth(handler, { roles: ['admin', 'demo'] });

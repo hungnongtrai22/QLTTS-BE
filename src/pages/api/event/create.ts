@@ -13,18 +13,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     await cors(req, res);
     await db.connectDB();
 
-    const {attendItem, month, year } = req.body;
+    const { attendItem, month, year } = req.body;
 
-    if (
-      typeof month !== 'number' ||
-      typeof year !== 'number' ||
-      !attendItem
-    ) {
+    if (typeof month !== 'number' || typeof year !== 'number' || !attendItem) {
       return res.status(400).json({ message: 'Dữ liệu không hợp lệ' });
     }
 
     // Kiểm tra bản ghi đã tồn tại chưa
-    const existingRecord = await Event.findOne({  month, year });
+    const existingRecord = await Event.findOne({ month, year });
 
     let updatedAttendance;
 
@@ -55,4 +51,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-export default withAuth(handler);
+export default withAuth(handler, { roles: ['admin', 'source'] });

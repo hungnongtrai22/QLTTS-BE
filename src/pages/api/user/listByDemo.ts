@@ -13,19 +13,23 @@ import Company from 'src/models/company';
 import Source from 'src/models/source';
 import { withAuth } from 'src/utils/auth';
 import { calculateAge } from 'src/utils/age';
+import { PARTNER_HIDDEN_SELECT, REF_NAME_SELECT, accountOf, isAdmin } from 'src/utils/internScope';
 
 // ----------------------------------------------------------------------
+// Danh sách TTS gán sẵn cho tài khoản demo (account.internsDemo).
+//
+// Tài khoản demo luôn nhận đúng danh sách của mình — danh sách gửi lên bị bỏ qua. Demo dùng
+// chung trang danh sách và các nút xuất Excel/PDF với admin, nên giữ trường của CV và chỉ bỏ
+// giấy tờ / liên lạc / hợp đồng.
 
-async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
     await db.connectDB();
 
-    
-    const { internsDemo } = req.body;
+    const account = accountOf(req);
+    const admin = isAdmin(account);
+    const internsDemo = admin ? req.body.internsDemo : account.internsDemo || [];
 
     if (!Array.isArray(internsDemo)) {
       return res.status(400).json({
@@ -33,21 +37,15 @@ async function handler(
       });
     }
 
+    const refSelect = admin ? '' : REF_NAME_SELECT;
+
     const interns = await Intern.find({
       _id: { $in: internsDemo },
     })
-      .populate({
-        path: 'tradeUnion',
-        model: TradeUnion,
-      })
-      .populate({
-        path: 'companySelect',
-        model: Company,
-      })
-      .populate({
-        path: 'source',
-        model: Source,
-      })
+      .select(admin ? '' : PARTNER_HIDDEN_SELECT)
+      .populate({ path: 'tradeUnion', model: TradeUnion, select: refSelect })
+      .populate({ path: 'companySelect', model: Company, select: refSelect })
+      .populate({ path: 'source', model: Source, select: refSelect })
       .lean();
 
     const internsWithAge = interns.map((intern) => ({
@@ -67,4 +65,4 @@ async function handler(
   }
 }
 
-export default withAuth(handler);
+export default withAuth(handler, { roles: ['admin', 'demo'] });

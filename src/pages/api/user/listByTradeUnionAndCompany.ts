@@ -8,36 +8,47 @@ import TradeUnion from 'src/models/tradeUnion';
 import Company from 'src/models/company';
 import { withAuth } from 'src/utils/auth';
 import { calculateAge } from 'src/utils/age';
+import {
+  PARTNER_LIST_SELECT,
+  REF_NAME_SELECT,
+  accountOf,
+  internScope,
+  isAdmin,
+} from 'src/utils/internScope';
 
 // ----------------------------------------------------------------------
+// Như listByTradeUnion, cho tài khoản nghiệp đoàn chỉ được xem một số công ty
+// (account.companySelect). Tài khoản nghiệp đoàn luôn nhận đúng phạm vi của mình.
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
     await db.connectDB();
 
-    const { tradeUnion,companySelect } = req.body;
-    // let companySelect = req.body;
-    let companyList = companySelect;
-
-// đảm bảo là array
-if (companyList && !Array.isArray(companyList)) {
-  companyList = [companyList];
-}
+    const account = accountOf(req);
+    const admin = isAdmin(account);
 
     const filter: any = {};
 
-    if (tradeUnion) {
-      filter.tradeUnion = tradeUnion;
+    if (admin) {
+      const { tradeUnion, companySelect } = req.body;
+      // đảm bảo là array
+      const companyList =
+        companySelect && !Array.isArray(companySelect) ? [companySelect] : companySelect;
+
+      if (tradeUnion) {
+        filter.tradeUnion = tradeUnion;
+      }
+
+      if (companyList && companyList.length > 0) {
+        filter.companySelect = { $in: companyList };
+      }
     }
 
- if (companyList && companyList.length > 0) {
-  filter.companySelect = { $in: companyList };
-}
-
-    const interns = await Intern.find(filter)
-      .populate({ path: 'tradeUnion', model: TradeUnion })
-      .populate({ path: 'companySelect', model: Company })
+    const interns = await Intern.find(admin ? filter : internScope(account) || {})
+      .select(admin ? '' : PARTNER_LIST_SELECT)
+      .populate({ path: 'tradeUnion', model: TradeUnion, select: admin ? '' : REF_NAME_SELECT })
+      .populate({ path: 'companySelect', model: Company, select: admin ? '' : REF_NAME_SELECT })
       .lean();
 
     const internsWithAge = interns.map((intern) => ({
@@ -56,4 +67,4 @@ if (companyList && !Array.isArray(companyList)) {
   }
 }
 
-export default withAuth(handler);
+export default withAuth(handler, { roles: ['admin', 'tradeunion'] });

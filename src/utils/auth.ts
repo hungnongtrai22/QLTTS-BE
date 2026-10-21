@@ -80,7 +80,10 @@ export async function requireAccount(req: NextApiRequest) {
   // gọi requireRole trực tiếp, không đi qua withAuth. Đặt ở đây thì mọi endpoint
   // yêu cầu đăng nhập đều được bao phủ, không sót nhánh nào.
   if (READ_ONLY && isWriteEndpoint(req.url)) {
-    throw new AuthError(403, 'Server đang ở chế độ chỉ đọc (READ_ONLY=1). Thao tác ghi bị từ chối.');
+    throw new AuthError(
+      403,
+      'Server đang ở chế độ chỉ đọc (READ_ONLY=1). Thao tác ghi bị từ chối.'
+    );
   }
 
   const secret = getJwtSecret();
@@ -158,14 +161,25 @@ type ApiHandler<Req extends NextApiRequest = NextApiRequest> = (
   res: NextApiResponse
 ) => unknown | Promise<unknown>;
 
+// Mọi role đăng nhập được. Endpoint mở cho role khác admin phải tự giới hạn dữ liệu theo
+// tài khoản — xem src/utils/internScope.ts.
+export const ALL_ROLES = ['admin', 'tradeunion', 'source', 'demo', 'dongthap'];
+
 /**
- * Bọc một API handler để bắt buộc đăng nhập (và tuỳ chọn: đúng role).
+ * Bọc một API handler để bắt buộc đăng nhập và đúng role.
  * Chặn ngay trước khi handler chạy, nên handler không cần biết gì về auth.
  *
- *   export default withAuth(handler);                        // chỉ cần đăng nhập
- *   export default withAuth(handler, { roles: ['admin'] });  // phải là admin
+ * Mặc định CHỈ ADMIN. Endpoint mà nghiệp đoàn / nguồn / demo / Đồng Tháp cần gọi phải ghi rõ
+ * role, và tự giới hạn dữ liệu theo tài khoản (src/utils/internScope.ts):
  *
- * Account đã xác thực được gắn vào `req.account` cho handler dùng nếu cần.
+ *   export default withAuth(handler);                          // chỉ admin
+ *   export default withAuth(handler, { roles: ALL_ROLES });    // mọi role, handler tự lọc
+ *   export default withAuth(handler, { roles: ['admin', 'source'] });
+ *
+ * Trước đây mặc định là "đăng nhập là đủ": tài khoản đối tác gọi được mọi endpoint và lấy
+ * được dữ liệu của mọi nghiệp đoàn.
+ *
+ * Account đã xác thực được gắn vào `req.account` cho handler dùng.
  */
 export function withAuth<Req extends NextApiRequest = NextApiRequest>(
   handler: ApiHandler<Req>,
@@ -188,9 +202,7 @@ export function withAuth<Req extends NextApiRequest = NextApiRequest>(
     }
 
     try {
-      const account = options?.roles
-        ? await requireRole(req, options.roles)
-        : await requireAccount(req);
+      const account = await requireRole(req, options?.roles || ['admin']);
 
       (req as NextApiRequest & { account?: unknown }).account = account;
     } catch (error) {

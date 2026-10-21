@@ -51,8 +51,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(200).json({ event: updatedEvent });
   } catch (error) {
     console.error('[Update event Item API]: ', error);
-    return res.status(400).json({ message: error instanceof Error ? error.message : 'Đã có lỗi xảy ra' });
+    return res
+      .status(400)
+      .json({ message: error instanceof Error ? error.message : 'Đã có lỗi xảy ra' });
   }
 }
 
-export default withAuth(handler);
+export default withAuth(handler, { roles: ['admin', 'source'] });

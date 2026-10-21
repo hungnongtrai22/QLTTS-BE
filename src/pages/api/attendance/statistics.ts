@@ -5,12 +5,16 @@ import db from 'src/utils/db';
 import cors from 'src/utils/cors';
 import Attendance from 'src/models/attendance';
 import Event from 'src/models/event';
-import { withAuth } from 'src/utils/auth';
+import { ALL_ROLES, sendAuthError, withAuth } from 'src/utils/auth';
+import { accountOf, assertInternAccess } from 'src/utils/internScope';
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await cors(req, res);
     await db.connectDB();
+
+    // Chỉ TTS trong phạm vi tài khoản (xem src/utils/internScope.ts).
+    await assertInternAccess(accountOf(req), req.body.internId);
 
     const { internId, month, year } = req.body;
 
@@ -128,9 +132,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       removedDates: Array.from(removedDatesSet),
     });
   } catch (err) {
+    if (sendAuthError(err, res)) return undefined;
     console.error('[Attendance Statistics]', err);
     return res.status(500).json({ message: 'Lỗi máy chủ' });
   }
 }
 
-export default withAuth(handler);
+export default withAuth(handler, { roles: ALL_ROLES });

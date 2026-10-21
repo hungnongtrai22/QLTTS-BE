@@ -3,10 +3,12 @@ import { NextApiRequest, NextApiResponse } from 'next';
 // utils
 import cors from 'src/utils/cors';
 import Compare from 'src/models/compare';
-import { withAuth } from 'src/utils/auth';
+import { ALL_ROLES, withAuth } from 'src/utils/auth';
+import { accountOf, isAdmin } from 'src/utils/internScope';
 import db from '../../../utils/db';
 
 // ----------------------------------------------------------------------
+// Gỡ một TTS khỏi danh sách so sánh. Đối tác chỉ sửa được danh sách của chính mình.
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -24,8 +26,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       return res.status(400).json({ message: 'Missing compareId or internId' });
     }
 
-    const result = await Compare.findByIdAndUpdate(
-      compareId,
+    const account = accountOf(req);
+    const filter = isAdmin(account) ? { _id: compareId } : { _id: compareId, account: account._id };
+
+    const result = await Compare.findOneAndUpdate(
+      filter,
       { $pull: { listIntern: internId } },
       { new: true }
     );
@@ -46,4 +51,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-export default withAuth(handler);
+export default withAuth(handler, { roles: ALL_ROLES });
