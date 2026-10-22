@@ -197,6 +197,11 @@ const internSchema = new mongoose.Schema(
       type: ObjectId,
       ref: 'source',
     },
+    // Lớp học ở trung tâm (model StudyClass). Không có = chưa xếp lớp; chỉ admin xếp lớp.
+    studyClass: {
+      type: ObjectId,
+      ref: 'StudyClass',
+    },
     companySelect: {
       type: ObjectId,
       ref: 'company',
@@ -471,6 +476,8 @@ internSchema.index({ status: 1, createdAt: -1 });
 internSchema.index({ tradeUnion: 1 });
 // lọc theo nguồn tuyển, listBySource
 internSchema.index({ source: 1 });
+// thành viên của một lớp (studyClass/[id]), đếm sĩ số (studyClass/list), gỡ lớp khi xoá lớp
+internSchema.index({ studyClass: 1 });
 // lọc theo xí nghiệp, listByTradeUnionAndCompany
 internSchema.index({ companySelect: 1 });
 // lọc theo chương trình

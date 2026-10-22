@@ -2,6 +2,7 @@ import Intern from 'src/models/intern';
 import Company from 'src/models/company';
 import TradeUnion from 'src/models/tradeUnion';
 import Source from 'src/models/source';
+import StudyClass from 'src/models/studyClass';
 
 // ----------------------------------------------------------------------
 // Dùng chung cho các endpoint báo cáo học tập theo tháng (study/tracker, study/bulk,
@@ -39,22 +40,29 @@ export function parseStudyMonth(value: unknown): StudyMonth | null {
   };
 }
 
+// TTS kèm đúng các trường internBasics cần (tên nghiệp đoàn / công ty / nguồn / lớp), sắp theo
+// tên. Dùng cho báo cáo theo tháng và trang Lớp.
+export function findInternBasics(filter: Record<string, unknown>) {
+  return Intern.find(filter)
+    .select('name namejp avatar status studyDate tradeUnion companySelect source studyClass')
+    .populate({ path: 'tradeUnion', model: TradeUnion, select: 'name' })
+    .populate({ path: 'companySelect', model: Company, select: 'name' })
+    .populate({ path: 'source', model: Source, select: 'name' })
+    .populate({ path: 'studyClass', model: StudyClass, select: 'name teacher' })
+    .sort({ name: 1 })
+    .lean();
+}
+
 // TTS của một tháng: đang học (status 'study') đã nhập học trước cuối tháng, cộng mọi TTS đã có
 // báo cáo trong tháng (kể cả người đã đổi trạng thái sau này).
 export function findMonthInterns(end: Date, reportedInternIds: string[]) {
-  return Intern.find({
+  return findInternBasics({
     $or: [
       // $nor: nhận cả TTS chưa có ngày nhập học, chỉ loại người nhập học sau tháng này.
       { status: 'study', $nor: [{ studyDate: { $gte: end } }] },
       { _id: { $in: reportedInternIds } },
     ],
-  })
-    .select('name namejp avatar status studyDate tradeUnion companySelect source')
-    .populate({ path: 'tradeUnion', model: TradeUnion, select: 'name' })
-    .populate({ path: 'companySelect', model: Company, select: 'name' })
-    .populate({ path: 'source', model: Source, select: 'name' })
-    .sort({ name: 1 })
-    .lean();
+  });
 }
 
 // Phần thông tin TTS chung cho mọi dòng trả về.
@@ -69,6 +77,10 @@ export const internBasics = (intern: any) => ({
   company: intern.companySelect?.name || '',
   // Rỗng = chưa có nguồn; FE hiển thị/lọc là "Nhật Tân" (DEFAULT_SOURCE_NAME).
   source: intern.source?.name || '',
+  // Lớp ở trung tâm: rỗng = chưa xếp lớp. classTeacher điền sẵn giáo viên cho báo cáo mới.
+  studyClass: intern.studyClass?.name || '',
+  studyClassId: intern.studyClass?._id ? String(intern.studyClass._id) : '',
+  classTeacher: intern.studyClass?.teacher || '',
 });
 
 // Gom báo cáo theo TTS. Danh sách đã sắp theo updatedAt tăng dần thì bản sửa sau cùng thắng

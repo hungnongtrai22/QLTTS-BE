@@ -109,6 +109,8 @@ export const PARTNER_HIDDEN_FIELDS = [
   'emergencyContactName',
   'emergencyContactRelationship',
   'emergencyContactPhone',
+  // Lớp ở trung tâm: thông tin nội bộ, đối tác không cần.
+  'studyClass',
 ];
 
 export const PARTNER_HIDDEN_SELECT = PARTNER_HIDDEN_FIELDS.map((field) => `-${field}`).join(' ');
