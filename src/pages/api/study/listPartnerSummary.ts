@@ -90,7 +90,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       };
     });
 
-    return res.status(200).json({ month, updatedAt, interns });
+    // Các tháng có báo cáo công khai (mới nhất trước) + số báo cáo — để đối tác chọn tháng khi
+    // tải gói báo cáo (study/listPartnerPackage).
+    const monthCounts = new Map<string, number>();
+    reports.forEach((report) => {
+      const key = monthKeyVN(report.monthAndYear);
+      monthCounts.set(key, (monthCounts.get(key) || 0) + 1);
+    });
+    const months = [...monthCounts.entries()].map(([key, count]) => ({ month: key, count }));
+
+    return res.status(200).json({ month, updatedAt, months, interns });
   } catch (error) {
     console.error('[Partner Study Summary API]: ', error);
     return res.status(500).json({ message: 'Server error' });
